@@ -1,1 +1,1 @@
-# xpt
+# XRF spectrum pre-training
