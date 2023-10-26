@@ -1,0 +1,15 @@
+# For jupyter notebook
+ipython
+ipykernel
+
+# For ML
+tqdm
+transformers
+scikit-learn
+
+# For data science
+scipy
+numpy
+pandas
+openpyxl
+matplotlib
