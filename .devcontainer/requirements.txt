@@ -1,9 +1,10 @@
 # For jupyter notebook
 ipython
 ipykernel
+ipywidgets
+tqdm
 
 # For ML
-tqdm
 transformers
 scikit-learn
 
