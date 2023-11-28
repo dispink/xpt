@@ -6,6 +6,7 @@ tqdm
 
 # For ML
 transformers
+timm
 scikit-learn
 
 # For data science
