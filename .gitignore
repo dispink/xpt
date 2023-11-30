@@ -1,3 +1,6 @@
 archives
 data
 __pycache__
+output_dir
+results
+models

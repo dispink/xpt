@@ -113,7 +113,6 @@ class MaskedAutoencoderViT(nn.Module):
 
         #h = w = imgs.shape[2] // p
         #x = imgs.reshape(shape=(imgs.shape[0], 3, h, p, w, p))
-        print(spes.shape)
         x = spes.reshape(
             shape=(spes.shape[0], self.patch_embed.num_patches, self.patch_embed.patch_size)
             )
