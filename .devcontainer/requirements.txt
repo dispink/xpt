@@ -7,6 +7,7 @@ tqdm
 # For ML
 transformers
 timm==0.4.5
+tensorboard
 scikit-learn
 
 # For data science
