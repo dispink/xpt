@@ -129,6 +129,6 @@ if __name__ == '__main__':
             f'valid loss {val_loss:5.2f} ')
         print('-' * 89)
         
-    torch.save(model.state_dict(), f'models/mae_vit_base_patch16_{get_date()}.pt')
+    torch.save(model.state_dict(), f'models/mae_vit_base_patch16_{get_date()}.pth')
     visualize(train_loss_list, val_loss_list, step_loss_list, log_interval, 'results')
  
