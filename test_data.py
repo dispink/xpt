@@ -1,21 +1,12 @@
 """
-It's a test to train and evaluate the model. 
-The workflow followes the idea of the main_pretrain.py and 
-engine_pretrain.py from MAE repo (https://github.com/facebookresearch/mae).
-I did modify those two files to fit our case, but the loss of the 
-first btach is nan, which was not the case in our simple forward test
-using one batch (test_forward.py). Therefore, I decide to build the 
-training script from the scratch without the fancy and complicated 
-codes like the ones in MAE repo. 
-
-No warming ip, no gradient accumulation, no mixed precision,
-no lr scheduler, no logging, no checkpointing, no parallelization
+It's a test to see if the model can converge with the least data complexity.
+Only one spectrum is used for training and validation. 
+The codes are modified from test_pretrain.py.
 """
 
 import numpy as np
 import torch
 from torch import nn
-from torch import Generator
 from torch.utils.data import random_split
 from torch.utils.data import DataLoader
 from util.datasets import CustomImageDataset
@@ -27,11 +18,21 @@ import time
 def get_date():
     return datetime.date.today().strftime("%Y%m%d")
 
+# use the fake annotations_file, the model will iteratively read "the one" spectrum
+def get_dataloader(batch_size: int):
+    dataset = CustomImageDataset('data/info_1data_20231206.csv', 'data/spe')
+    data_train, data_val = random_split(dataset, [0.8, 0.2], generator=torch.manual_seed(24))
+    dataloader = {
+        'train':DataLoader(data_train, batch_size=batch_size, shuffle=True),
+        'val':DataLoader(data_val, batch_size=batch_size, shuffle=True)
+        }
+    return dataloader
+
 def train(model: nn.Module, dataloader: DataLoader, log_interval: int, device='cuda'):
     """
     log_interval: how many batches as a step
     """
-    lr = 1e-3  # fixed learning rate
+    lr = 1e-5  # fixed learning rate
     optimizer = torch.optim.AdamW(model.parameters(), lr=lr, betas=(0.9, 0.95))
     #scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 1.0, gamma=0.95)
     model = model.to(device)
@@ -56,14 +57,8 @@ def train(model: nn.Module, dataloader: DataLoader, log_interval: int, device='c
         total_loss += loss.item()
         if batch % log_interval == 0 and batch > 0:
             #lr = scheduler.get_last_lr()[0]
-            #ms_per_batch = (time.time() - start_time) * 1000 / log_interval
-            #cur_loss = step_loss / log_interval
-            #print(f'| epoch {epoch:3d} | {batch:5d}/{len(dataloader):5d} batches | '
-            #      f'lr {lr:02.2f} | ms/batch {ms_per_batch:5.2f} | '
-            #      f'loss {cur_loss:5.2f}')
             step_loss_list.append(step_loss / log_interval)
             step_loss = 0.
-            #start_time = time.time()
     return step_loss_list, total_loss / len(dataloader)
 
 def evaluate(model: nn.Module, dataloader: DataLoader, device='cuda'):
@@ -93,22 +88,16 @@ def visualize(train_loss_list, val_loss_list, step_loss_list, log_interval: int,
     axes[1].set_xlabel('step')
     axes[1].set_ylabel('loss')
     axes[1].legend()
-    fig.savefig(f'{out_dir}/loss_1e-3_{get_date()}.png')
-    
+    fig.savefig(f'{out_dir}/loss_1data_{get_date()}.png')
 
 if __name__ == '__main__':
 
-    dataset = CustomImageDataset('data/info_20231121.csv', 'data/spe')
-    data_train, data_val = random_split(dataset, [0.8, 0.2], generator=Generator().manual_seed(24))
-    batch_size = 64
-    dataloader = {
-        'train':DataLoader(data_train, batch_size=batch_size, shuffle=True),
-        'val':DataLoader(data_val, batch_size=batch_size, shuffle=True)
-        }
-
+    dataloader = get_dataloader(batch_size=64)
+    model = mae_vit_base_patch16()
+    
     epochs = 100
     log_interval = 10
-    model = mae_vit_base_patch16()
+
     train_loss_list = []
     step_loss_list = []
     val_loss_list = []
@@ -116,7 +105,7 @@ if __name__ == '__main__':
     for epoch in range(1, epochs+1):
         epoch_start_time = time.time()
 
-        step_losses, epoch_loss = train(model, dataloader['train'], log_interval)
+        step_losses, epoch_loss = train(model=model, dataloader=dataloader['train'], log_interval=log_interval)
         step_loss_list.extend(step_losses)
         train_loss_list.append(epoch_loss)
 
@@ -129,6 +118,6 @@ if __name__ == '__main__':
             f'valid loss {val_loss:5.2f} ')
         print('-' * 89)
         
-    torch.save(model.state_dict(), f'models/mae_vit_base_patch16_1e-3_{get_date()}.pth')
+    torch.save(model.state_dict(), f'models/mae_vit_base_patch16_1data_{get_date()}.pth')
     visualize(train_loss_list, val_loss_list, step_loss_list, log_interval, 'results')
  
