@@ -1,17 +1,18 @@
 """
-This is a test file for training the model with different learning rate
-after natural log the data.
+This is a test file to see if the modified loss function works better.
 Also, I add torch.cuda.amp.autocast() to train_one_epoch() because now
 the spectrum data can be either float 32 or 64.
 """
 
 import numpy as np
+import pandas as pd
 import torch
 from torch import nn
 from torch.utils.data import random_split
 from torch.utils.data import DataLoader
-from util.datasets import CustomImageDataset, log_transform
-from models_mae import mae_vit_base_patch16
+from util.datasets import CustomImageDataset, log_transform, standardize
+# new loss function
+from models_mae_loss import mae_vit_base_patch16
 import matplotlib.pyplot as plt
 import datetime
 import time
@@ -20,8 +21,8 @@ import time
 def get_date():
     return datetime.date.today().strftime("%Y%m%d")
 
-def get_dataloader(batch_size: int):
-    dataset = CustomImageDataset('data/info_20231121.csv', 'data/spe', transform=log_transform)
+def get_dataloader(batch_size: int, transform=None):
+    dataset = CustomImageDataset('data/info_20231121.csv', 'data/spe', transform=transform)
     data_train, data_val = random_split(dataset, [0.8, 0.2], generator=torch.manual_seed(24))
     dataloader = {
         'train':DataLoader(data_train, batch_size=batch_size, shuffle=True),
@@ -71,9 +72,9 @@ def visualize(train_loss_list, val_loss_list, lr, out_dir: str):
     plt.xlabel('epoch')
     plt.ylabel('loss')
     plt.legend()
-    plt.savefig(f'{out_dir}/loss_ln_{lr}_{get_date()}.png')
+    plt.savefig(f'{out_dir}/loss_{lr}_{get_date()}.png')
 
-def trainer(model: nn.Module, dataloader: DataLoader, lr: float, epochs: int):
+def trainer(model: nn.Module, dataloader: DataLoader, lr: float, epochs: int, data: str):
     """
     Train the model for epochs. Export the training and validation loss in figure.
     Output the model's minimum validation loss.
@@ -96,29 +97,29 @@ def trainer(model: nn.Module, dataloader: DataLoader, lr: float, epochs: int):
             f'valid loss {val_loss:.3f} ')
         print('-' * 89)
     
-    visualize(train_loss_list, val_loss_list, lr, 'results')
+    visualize(train_loss_list, val_loss_list, lr, f'results/{data}')
     return min(val_loss_list)
 
 def main():
-    dataloader = get_dataloader(batch_size=64)
-    epochs = 100
-    best_val_loss = 0.2
-    val_loss_list = []
-    lr_list = [1e-3, 1e-4, 1e-5, 1e-6, 1e-7]
+    for data, transform in zip(['ln', 'std'], [log_transform, standardize]):
+        dataloader = get_dataloader(batch_size=64, transform=transform)
+        epochs = 100
+        best_val_loss = 0.1
+        val_loss_list = []
+        lr_list = [1e-3, 1e-4, 1e-5, 1e-6, 1e-7]
 
-    for lr in lr_list:
-        # reset model
-        model = mae_vit_base_patch16()
-        val_loss = trainer(model, dataloader, lr, epochs)
-        val_loss_list.append(val_loss)
-        if val_loss < best_val_loss:
-            best_val_loss = val_loss
-            torch.save(model.state_dict(), f'models/mae_vit_base_patch16_ln_{lr}_{get_date()}.pth')
-    return lr_list, val_loss_list
+        for lr in lr_list:
+            # reset model
+            model = mae_vit_base_patch16()
+            val_loss = trainer(model, dataloader, lr, epochs, data)
+            val_loss_list.append(val_loss)
+            if val_loss < best_val_loss:
+                best_val_loss = val_loss
+                torch.save(model.state_dict(), f'models/mae_vit_base_patch16_{data}_{lr}_{get_date()}.pth')
+        df = pd.DataFrame({'lr':lr_list, 'min_val_loss':val_loss_list})
+        df.to_csv(f'results/{data}/test_lr_{get_date()}.csv', index=False)
+
 
 if __name__ == '__main__':
-    import pandas as pd
-    lr_list, val_loss_list = main()
-    df = pd.DataFrame({'lr':lr_list, 'min_val_loss':val_loss_list})
-    df.to_csv(f'results/test_ln_lr_{get_date()}.csv', index=False)
+    main()
  

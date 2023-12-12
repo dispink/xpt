@@ -1,7 +1,7 @@
 
 """
-It's copied from model_mae.py. The modification are as follows:
-1. def loss_forward(): include unmasked patches in loss calculation
+It's copied from model_mae.py. The modifications are as follows:
+1. def loss_forward(): include unmasked patches to loss calculation
 2. Polish the codes by trimming the hash comments
 """
 from functools import partial
@@ -205,9 +205,7 @@ class MaskedAutoencoderViT(nn.Module):
             target = (target - mean) / (var + 1.e-6)**.5
 
         loss = (pred - target) ** 2
-        loss = loss.mean(dim=-1)  # [N, L], mean loss per patch
-
-        loss = (loss * mask).sum() / mask.sum()  # mean loss on removed patches
+        loss = loss.mean()  # [1], mean loss on all patches
         return loss
 
     def forward(self, spes):
