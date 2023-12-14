@@ -1,6 +1,10 @@
-archives
-data
+pilot/archives
+pilot/data
+pilot/output_dir
+pilot/results
+pilot/models
 __pycache__
+data
 output_dir
 results
 models
