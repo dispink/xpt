@@ -8,3 +8,4 @@ data
 output_dir
 results
 models
+.venv
