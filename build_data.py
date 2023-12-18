@@ -15,12 +15,18 @@ os.makedirs('data/spe', exist_ok=True)
 # load the raw spectra with info
 import pandas as pd
 spe_df = pd.read_csv('data/spe_dataset_20220629.csv', index_col=0)
+
+# filter out test set cores
+cores = ['PS75-056-1', 'LV28-44-3', 'SO264-69-2']
+spe_df = spe_df[~spe_df.core.isin(cores)].copy()
+
+# set composite_id as a column
 spe_df = spe_df.reset_index(drop=False)
 print(spe_df.head())
 
 # output the raw spectra
 for row in spe_df.iterrows():
-    row[1][1:2049].to_csv('data/spe/{}.csv'.format(row[0]), index=False, header=False)
+    row[1][1:2049].to_csv('data/pretrain/{}.csv'.format(row[0]), index=False, header=False)
 print(f'{len(spe_df)} spectra exorted.')
 
 # output the annotation file
