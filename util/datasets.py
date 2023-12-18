@@ -7,7 +7,9 @@ https://pytorch.org/tutorials/beginner/basics/data_tutorial.html
 import os
 import numpy as np
 import pandas as pd
-from torch.utils.data import Dataset
+import torch
+from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import random_split
 
 class CustomImageDataset(Dataset):
     
@@ -53,11 +55,27 @@ def log_transform(spe):
     spe = np.log(spe+1)
     return spe 
     
+def split(dataset: Dataset, train_ratio: float = 0.8, seed: int = 24):
+    """
+    Split the dataset into train and val sets.
+    """
+    data_train, data_val = random_split(dataset, [train_ratio, 1-train_ratio], generator=torch.manual_seed(seed))
+    return data_train, data_val
+
+def get_dataloader(annotations_file: str, input_dir: str, batch_size: int, transform=None):
+    dataset = CustomImageDataset(annotations_file, input_dir, transform=transform)
+    data_train, data_val = split(dataset)
+    dataloader = {
+        'train':DataLoader(data_train, batch_size=batch_size, shuffle=True),
+        'val':DataLoader(data_val, batch_size=batch_size, shuffle=True)
+        }
+    return dataloader
+
 if __name__ == "__main__":
-    for transfom in [None, standardize, log_transform]:
-        dataset = CustomImageDataset(annotations_file='data/info_20231214.csv', input_dir='data/spe', transform=transfom)
-        spe = dataset[60]
-        print(spe.shape)
-        print(spe.dtype)
-        print(spe)
-        print(spe.max())
+    dataloader = get_dataloader(annotations_file='data/info_20231214.csv', input_dir='data/spe', 
+                                batch_size=64, transform=standardize)
+    spe = dataloader['train'].dataset[0]
+    print(spe.shape)
+    print(spe.dtype)
+    print(spe)
+    print(spe.max())

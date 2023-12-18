@@ -1,5 +1,11 @@
 import torch
 
+def get_mse(true_values, pred_values):
+    # all in tensor
+    loss = (true_values - pred_values) ** 2
+    loss = loss.mean()
+    return loss.item()
+
 def evaluate_base(dataloader):
     data = torch.empty((0, 2048))
 
@@ -7,9 +13,8 @@ def evaluate_base(dataloader):
         for samples in dataloader:
             data = torch.cat((data, samples), 0)
         mean = data.mean()
-        loss = (data-mean)**2
-        loss = loss.mean()
-    return loss.item()
+        mse = get_mse(data, mean)
+    return mse
 
 def inverse_standardize(raws, pred_un):
     mean = raws.mean(dim=1, keepdim=True)
@@ -20,13 +25,11 @@ def inverse_log(raws, pred_un):
     # raws is not used, just to be consistent with other inverse functions
     return torch.exp(pred_un) - 1
 
-def get_mse(true_values, pred_values):
-    # all in tensor
-    loss = (true_values - pred_values)**2
-    loss = loss.mean()
-    return loss.item()
-
 def evaluate_inraw(model, dataloader_raw, dataloader_norm, inverse=None, device='cuda'):
+    """
+    inverse: function to inverse the normalized image to raw image
+             inverse_standardize or inverse_log
+    """
     total_loss = 0.
     model.eval()  # turn on evaluation mode
 
@@ -36,7 +39,7 @@ def evaluate_inraw(model, dataloader_raw, dataloader_norm, inverse=None, device=
             norms = norms.to(device, non_blocking=True, dtype=torch.float)
 
             _, pred, _ = model(norms)    # in normalized space
-            pred_un = model.unpatchify(pred)
+            pred_un = model.unpatchify(pred) # the mae model has unpatchify function 
             if inverse:
                 pred_un = inverse(raws, pred_un)    # in raw space
             loss = get_mse(raws, pred_un)
