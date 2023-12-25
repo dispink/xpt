@@ -7,6 +7,7 @@ Since the training time increases ~20 times and I still has memory source,
 I decide to speed up by increasing the batch size from 64 to 256, same as BERT.
 """
 
+import os
 import numpy as np
 import pandas as pd
 import torch
@@ -94,27 +95,55 @@ def trainer(model: nn.Module, dataloader: dict, lr: float, epochs: int):
     visualize(train_loss_list, val_loss_list, lr, f'results')
     return min(val_loss_list)
 
-#def output_df(lr_list, val_loss_list):
-#    df = pd.DataFrame({'lr':lr_list, 'min_val_loss':val_loss_list})
-#    df.to_csv(f'results/test_lr_{get_date()}.csv', index=False)
+def output_df(lr_list, val_loss_list):
+    df = pd.DataFrame({'lr':lr_list, 'min_val_loss':val_loss_list})
+    df.to_csv(f'results/test_lr_{get_date()}.csv', index=False)
 
-def main():
-    # the optimal model is trained on data with standardization, lr=1e-5
-    dataloader = get_dataloader(annotations_file='data/info_20231214.csv', input_dir='data/spe', 
-                                batch_size=256, transform=standardize)
-    epochs = 100
-    val_loss_list = []
-    lr = 1e-5
+def main(lr, val_loss_best, epochs):
+    """
+    lr: learning rate
+    val_loss_best: the best validation loss from the previous training
+    """
+    # the optimal model is trained on data with standardization
+    dataloader = get_dataloader(annotations_file='data/info_20231225.csv', input_dir='data/pretrain', 
+                                batch_size=256, transform=standardize)   
 
-    # reset model
+    # reset model by the optimal weights from the pilot study
     model = mae_vit_base_patch16()
     model.load_state_dict(torch.load('pilot/models/mae_vit_base_patch16_update_1e-05_20231214.pth'))
-    val_loss = trainer(model, dataloader, lr, epochs)
-    val_loss_list.append(val_loss)
 
-    torch.save(model.state_dict(), f'models/mae_vit_base_patch16_{lr}_{get_date()}.pth')
+    # acquires the minimum validation loss in the training
+    val_loss = trainer(model, dataloader, lr, epochs)
+
+    # save the model if it's the best along the previous training
+    if val_loss < val_loss_best:
+        torch.save(model.state_dict(), f'models/mae_vit_base_patch16_{lr}_{get_date()}.pth')
+    
+    return val_loss
 
 
 if __name__ == '__main__':
-    main()
+    # initialize an expected loss that triggers the save of model
+    val_loss_list = [0.1]
+    lr_list = [1e-3, 1e-4, 1e-5, 1e-6, 1e-7]
+    
+    # initialize the output txt file
+    output_file = f'results/test_lr_{get_date()}.csv'
+    with open(output_file, 'w') as f:
+        f.write('lr,min_val_loss\n')
+
+    for lr in lr_list:
+        # train the model and get the val_loss (minimun in each training)
+        val_loss = main(lr, min(val_loss_list), epochs=30)
+        val_loss_list.append(val_loss)
+
+        # output the lr and min_val_loss
+        with open(output_file, 'a') as f:
+            f.write(f'{lr},{val_loss}\n')
+
+    # remove the initialized loss
+    #del val_loss_list[0]
+
+    # output the dataframe
+    #output_df(lr_list, val_loss_list)
  
