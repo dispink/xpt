@@ -34,5 +34,5 @@ spe_df['dirname'] = ['{}.csv'.format(id) for id in spe_df.index]
 spe_df = spe_df[['dirname', 'composite_id', 'cps', 'core', 
                  'composite_depth_mm', 'section_depth_mm', 
                  'filename', 'section']]
-spe_df.to_csv('data/spe_{}.csv'.format(date), index=False)
+spe_df.to_csv('data/info_{}.csv'.format(date), index=False)
 print(spe_df.head())
