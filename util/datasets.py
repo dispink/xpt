@@ -66,8 +66,8 @@ def get_dataloader(annotations_file: str, input_dir: str, batch_size: int, trans
     dataset = CustomImageDataset(annotations_file, input_dir, transform=transform)
     data_train, data_val = split(dataset)
     dataloader = {
-        'train':DataLoader(data_train, batch_size=batch_size, shuffle=True),
-        'val':DataLoader(data_val, batch_size=batch_size, shuffle=True)
+        'train':DataLoader(data_train, batch_size=batch_size, shuffle=True, num_workers=4),
+        'val':DataLoader(data_val, batch_size=batch_size, shuffle=True, num_workers=4)
         }
     return dataloader
 
