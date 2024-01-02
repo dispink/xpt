@@ -1,4 +1,29 @@
 import torch
+import torch.nn as nn
+from torch.utils.data import DataLoader
+
+def evaluate(model: nn.Module, dataloader: DataLoader, device='cuda'):
+    total_loss = 0.
+    model.eval()  # turn on evaluation mode
+
+    with torch.no_grad():
+        for samples in dataloader:
+            samples = samples.to(device, non_blocking=True, dtype=torch.float)
+            loss, _, _ = model(samples)
+            total_loss += loss.item()
+    return total_loss / len(dataloader)
+
+def evaluate_spe(model, spe_arr):
+    """
+    Use the mae model to evaluate the spectra directly.
+    Input: mae-like model, spetra in numpy array
+    Output: loss, pred, mask
+    """
+    model.eval()
+    with torch.no_grad():
+        torch.manual_seed(24)
+        spe = torch.from_numpy(spe_arr).to('cuda')
+        return model(spe.unsqueeze(0).float())
 
 def get_mse(true_values, pred_values):
     # all in tensor
@@ -27,6 +52,8 @@ def inverse_log(raws, pred_un):
 
 def evaluate_inraw(model, dataloader_raw, dataloader_norm, inverse=None, device='cuda'):
     """
+    dataloaders: the shuffling should be turned off for both dataloaders, otherwise the indices won't be matched.
+                 the validation dataloader from get_dataloader() has shuffling turned off by default.
     inverse: function to inverse the normalized image to raw image
              inverse_standardize or inverse_log
     """
