@@ -69,7 +69,7 @@ def get_dataloader(annotations_file: str, input_dir: str, batch_size: int, trans
         'train':DataLoader(data_train, 
                            batch_size=batch_size, 
                            shuffle=True, 
-                           num_workers=4,
+                           num_workers=10,
                            pin_memory=True),
         'val':DataLoader(data_val, 
                          batch_size=batch_size, 
