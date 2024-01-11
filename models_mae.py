@@ -1,4 +1,3 @@
-
 """Modified Masked Autoencoder with VisionTransformer backbone
 
 It's copied from pilot/model_mae_loss.py, which is based on https://github.com/facebookresearch/mae/model_mae.py. 
@@ -82,7 +81,7 @@ class MaskedAutoencoderViT(nn.Module):
         torch.nn.init.normal_(self.cls_token, std=.02)
         torch.nn.init.normal_(self.mask_token, std=.02)
 
-        # initialize nn.Linear and nn.LayerNorm
+        # initialize nn.Linear, nn.LayerNorm and nn.Conv1d with xavier_uniform
         self.apply(self._init_weights)
 
     def _init_weights(self, m):
