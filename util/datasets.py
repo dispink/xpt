@@ -15,7 +15,7 @@ class CustomImageDataset(Dataset):
     
     def __init__(self, annotations_file: str, input_dir: str, transform: object=None):
         """
-        Initialize a Dataset object.
+        Initialize a Dataset object for pretraining.
 
         Args:
             annotations_file (str): Path to the annotations file.
@@ -35,6 +35,41 @@ class CustomImageDataset(Dataset):
         if self.transform:
             spe = self.transform(spe)
         return spe
+    
+class FinetuneDataset(Dataset):
+    
+    def __init__(self, annotations_file: str, input_dir: str, transform: object=None):
+        """
+        Initialize a Dataset object for finetuning.
+
+        Args:
+            annotations_file (str): Path to the annotations file.
+            input_dir (str): Directory containing spectra and targets subfolders.
+            transform (function, optional): Optional data transformation object for spectra. Defaults to None.
+
+        Output:
+            sample (dict): {'spe': spectrum, 'target': target}
+        """
+        info_path = os.path.join(input_dir, annotations_file)
+        self.info_df = pd.read_csv(info_path)
+        self.input_dir = input_dir
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.info_df)
+
+    def __getitem__(self, idx):
+        spe_path = os.path.join(self.input_dir, 'spe', self.info_df.iloc[idx, 0])
+        spe = np.loadtxt(spe_path, delimiter=',', dtype=float)
+        if self.transform:
+            spe = self.transform(spe)
+
+        target_path = os.path.join(self.input_dir, 'target', self.info_df.iloc[idx, 0])
+        target = np.loadtxt(target_path, delimiter=',', dtype=float)
+        
+        sample = {'spe': spe, 'target': target}
+
+        return sample
     
 def standardize(spe):
     """
@@ -79,10 +114,14 @@ def get_dataloader(annotations_file: str, input_dir: str, batch_size: int, trans
     return dataloader
 
 if __name__ == "__main__":
-    dataloader = get_dataloader(annotations_file='data/info_20231214.csv', input_dir='data/spe', 
-                                batch_size=64, transform=standardize)
-    spe = dataloader['train'].dataset[0]
-    print(spe.shape)
-    print(spe.dtype)
-    print(spe)
-    print(spe.max())
+    dataset = FinetuneDataset(annotations_file='info_20240112.csv', input_dir='data/finetune/train', transform=standardize)
+    #dataset = CustomImageDataset(annotations_file='data/info_20231225.csv', input_dir='data/pretrain', transform=standardize)
+    print(len(dataset))
+    print(dataset[0]['target'])
+    #dataloader = get_dataloader(annotations_file='data/info_20231214.csv', input_dir='data/spe', 
+    #                            batch_size=64, transform=standardize)
+    #spe = dataloader['train'].dataset[0]
+    #print(spe.shape)
+    #print(spe.dtype)
+    #print(spe)
+    #print(spe.max())
