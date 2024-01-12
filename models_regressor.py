@@ -1,6 +1,6 @@
 """Remove the decoder part of the model, and add fc layer to the encoder part.
 
-It's copied from model_mae.py. The kept codes should be identical to it.
+It's copied from model_mae.py. Except the added head, the kept codes should be identical to it.
 """
 from functools import partial
 
@@ -40,6 +40,7 @@ class MaskedAutoencoderViT(nn.Module):
 
         # --------------------------------------------------------------------------
         # New head for regression: CaCO3 and TOC
+        # output is fixed in 0-1
         self.fc = nn.Sequential(
             nn.Linear(embed_dim, 2),
             nn.Sigmoid()
@@ -146,14 +147,28 @@ class MaskedAutoencoderViT(nn.Module):
 
         # transform the cls to logits
         # (N, 1, 2)
-        pred = self.fc(x[:, 0])
+        pred = self.fc(x[:, 0]) * 100  # scale to 0-100, relevent to weighting percent unit
         
         return pred, mask
     
-def mae_vit_base_patch16_dec512d8b(**kwargs):
+def mae_vit_base_patch16_dec512d8b(pretrained: bool, **kwargs):
     model = MaskedAutoencoderViT(
         patch_size=16, embed_dim=768, depth=12, num_heads=12,
         mlp_ratio=4, norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
+    
+    if pretrained:
+        # adopt pretrained model's weights to the new model
+        pretrained_state = torch.load('models/mae_vit_base_patch16_l-coslr_1e-05_20231229.pth')
+        model_state = model.state_dict()
+        compiled_state = model_state.copy()
+
+        # update the weights that can be found in the pretrained model
+        for k, v in pretrained_state.items():
+            if k in model_state:
+                compiled_state[k] = v
+
+        model.load_state_dict(compiled_state)
+
     return model
 
 # set recommended archs
