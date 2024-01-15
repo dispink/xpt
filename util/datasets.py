@@ -34,6 +34,7 @@ class PretrainDataset(Dataset):
         spe = np.loadtxt(input_path, delimiter=',', dtype=int)
         if self.transform:
             spe = self.transform(spe)
+
         return spe
     
 class FinetuneDataset(Dataset):
@@ -97,9 +98,22 @@ def split(dataset: Dataset, train_ratio: float = 0.8, seed: int = 24):
     data_train, data_val = random_split(dataset, [train_ratio, 1-train_ratio], generator=torch.manual_seed(seed))
     return data_train, data_val
 
-def get_dataloader(annotations_file: str, input_dir: str, batch_size: int, transform=None):
-    dataset = PretrainDataset(annotations_file, input_dir, transform=transform)
+def get_dataloader(ispretrain: bool, annotations_file: str, input_dir: str, batch_size: int, transform=None):
+    """
+    Get dataloaders (in dictionary) from split datasets.
+    The dataloader for validation doesn't shuffle the data unlike the one for training.
+    """
+    
+    # decide which dataset to use
+    if ispretrain:
+        dataset = PretrainDataset(annotations_file, input_dir, transform=transform)
+    else:
+        dataset = FinetuneDataset(annotations_file, input_dir, transform=transform)
+
+    # split the dataset into train and val sets
     data_train, data_val = split(dataset)
+    
+    # create dataloaders
     dataloader = {
         'train':DataLoader(data_train, 
                            batch_size=batch_size, 
@@ -111,17 +125,19 @@ def get_dataloader(annotations_file: str, input_dir: str, batch_size: int, trans
                          num_workers=4,
                          pin_memory=True)
         }
+    
     return dataloader
 
 if __name__ == "__main__":
-    dataset = FinetuneDataset(annotations_file='info_20240112.csv', input_dir='data/finetune/train', transform=standardize)
+    #dataset = FinetuneDataset(annotations_file='info_20240112.csv', input_dir='data/finetune/train', transform=standardize)
     #dataset = CustomImageDataset(annotations_file='data/info_20231225.csv', input_dir='data/pretrain', transform=standardize)
-    print(len(dataset))
-    print(dataset[0]['target'])
-    #dataloader = get_dataloader(annotations_file='data/info_20231214.csv', input_dir='data/spe', 
-    #                            batch_size=64, transform=standardize)
-    #spe = dataloader['train'].dataset[0]
-    #print(spe.shape)
+    #print(len(dataset))
+    #print(dataset[0]['target'])
+    dataloader = get_dataloader(ispretrain=False, annotations_file='info_20240112.csv', input_dir='data/finetune/train', 
+                                batch_size=64, transform=standardize)
+    samples = dataloader['train'].dataset[0]
+    print(samples['spe'].shape)
+    print(samples['target'].shape)
     #print(spe.dtype)
     #print(spe)
     #print(spe.max())
