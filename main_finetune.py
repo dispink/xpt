@@ -10,7 +10,7 @@ The batch size is 256, same as BERT.
 import torch
 from torch.utils.data import DataLoader
 from torch.optim import lr_scheduler, optimizer
-from util.datasets import FinetuneDataset, standardize, split
+from util.datasets import standardize, get_dataloader
 from models_regressor import mae_vit_base_patch16
 from engine_finetune import train_one_epoch, evaluate
 import matplotlib.pyplot as plt
@@ -19,22 +19,6 @@ import time
 
 def get_date():
     return datetime.date.today().strftime("%Y%m%d")
-
-def get_dataloader(annotations_file: str, input_dir: str, batch_size: int, transform=None):
-    dataset = FinetuneDataset(annotations_file, input_dir, transform=transform)
-    data_train, data_val = split(dataset)
-    dataloader = {
-        'train':DataLoader(data_train, 
-                           batch_size=batch_size, 
-                           shuffle=True, 
-                           num_workers=10,
-                           pin_memory=True),
-        'val':DataLoader(data_val, 
-                         batch_size=batch_size, 
-                         num_workers=4,
-                         pin_memory=True)
-        }
-    return dataloader
 
 def visualize(train_loss_list, val_loss_list, out_dir: str, notes: str):
     plt.figure()
@@ -100,7 +84,7 @@ def main(lr, val_loss_best, epochs, notes):
     """
     
     batch_size = 256
-    dataloader = get_dataloader(annotations_file='info_20240112.csv', input_dir='data/finetune/train', 
+    dataloader = get_dataloader(ispretrain=False, annotations_file='info_20240112.csv', input_dir='data/finetune/train', 
                                 batch_size=batch_size, transform=standardize)   
 
     # load modified pre-trained model
@@ -135,8 +119,8 @@ def main(lr, val_loss_best, epochs, notes):
 
 if __name__ == '__main__':
     # initialize an expected loss that triggers the save of model
-    val_loss_list = [0.1]
-    lr_list = [1e-3, 1e-4, 1e-5, 1e-6, 1e-7]
+    val_loss_list = [20]
+    lr_list = [1e-5, 1e-6]
     # notes for naming output files
     notes = 'lr'
 
