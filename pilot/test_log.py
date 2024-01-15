@@ -10,7 +10,7 @@ import torch
 from torch import nn
 from torch.utils.data import random_split
 from torch.utils.data import DataLoader
-from util.datasets import CustomImageDataset, log_transform
+from util.datasets import PretrainDataset, log_transform
 from models_mae import mae_vit_base_patch16
 import matplotlib.pyplot as plt
 import datetime
@@ -21,7 +21,7 @@ def get_date():
     return datetime.date.today().strftime("%Y%m%d")
 
 def get_dataloader(batch_size: int):
-    dataset = CustomImageDataset('data/info_20231121.csv', 'data/spe', transform=log_transform)
+    dataset = PretrainDataset('data/info_20231121.csv', 'data/spe', transform=log_transform)
     data_train, data_val = random_split(dataset, [0.8, 0.2], generator=torch.manual_seed(24))
     dataloader = {
         'train':DataLoader(data_train, batch_size=batch_size, shuffle=True),

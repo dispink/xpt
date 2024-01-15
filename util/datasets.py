@@ -11,7 +11,7 @@ import torch
 from torch.utils.data import Dataset, DataLoader
 from torch.utils.data import random_split
 
-class CustomImageDataset(Dataset):
+class PretrainDataset(Dataset):
     
     def __init__(self, annotations_file: str, input_dir: str, transform: object=None):
         """
@@ -98,7 +98,7 @@ def split(dataset: Dataset, train_ratio: float = 0.8, seed: int = 24):
     return data_train, data_val
 
 def get_dataloader(annotations_file: str, input_dir: str, batch_size: int, transform=None):
-    dataset = CustomImageDataset(annotations_file, input_dir, transform=transform)
+    dataset = PretrainDataset(annotations_file, input_dir, transform=transform)
     data_train, data_val = split(dataset)
     dataloader = {
         'train':DataLoader(data_train, 

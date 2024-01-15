@@ -14,7 +14,7 @@ import torch
 from torch import nn
 from torch.utils.data import random_split
 from torch.utils.data import DataLoader
-from util.datasets import CustomImageDataset, standardize, get_dataloader
+from util.datasets import PretrainDataset, standardize, get_dataloader
 from models_mae import mae_vit_base_patch16
 import matplotlib.pyplot as plt
 import datetime

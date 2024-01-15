@@ -21,7 +21,7 @@ import torch.backends.cudnn as cudnn
 from torch.utils.tensorboard import SummaryWriter
 import torchvision.transforms as transforms
 #import torchvision.datasets as datasets
-from util.datasets import CustomImageDataset
+from util.datasets import PretrainDataset
 
 import timm
 
@@ -129,7 +129,7 @@ def main(args):
     #        transforms.ToTensor(),
     #        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
     #dataset_train = datasets.ImageFolder(os.path.join(args.data_path, 'train'), transform=transform_train)
-    dataset_train = CustomImageDataset('data/info_20231121.csv', 'data/spe')
+    dataset_train = PretrainDataset('data/info_20231121.csv', 'data/spe')
 
     if True:  # args.distributed:
         num_tasks = misc.get_world_size()

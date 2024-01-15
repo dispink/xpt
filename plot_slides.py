@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-from util.datasets import CustomImageDataset, split, standardize
+from util.datasets import PretrainDataset, split, standardize
 from models_mae import mae_vit_base_patch16
 
 def unpatchify(mask, pred, model):
@@ -16,7 +16,7 @@ def unpatchify(mask, pred, model):
 
     return pred_un_arr, mask_un_arr
 
-dataset = CustomImageDataset(
+dataset = PretrainDataset(
     annotations_file='data/info_20231225.csv', input_dir='data/pretrain', 
     transform=standardize
     )
