@@ -110,7 +110,7 @@ class finetune_evaluator:
                 samples = batch['spe'].to(self.device, non_blocking=True, dtype=torch.float)
                 targets = batch['target'].to(self.device, non_blocking=True, dtype=torch.float)
 
-                preds, _ = model(samples)
+                preds = model(samples)
                 loss = self.get_mse(targets, preds)
                 total_loss += loss
 
