@@ -36,6 +36,16 @@ import pandas as pd
 def get_date():
     return datetime.date.today().strftime("%Y%m%d")
 
+def replace_zero_and_negative(df, targets):
+    """
+    Replace zero and negative values in targets with 0.001.
+    """
+    
+    for target in targets:
+        df[target] = df[target].apply(lambda x: 0.001 if x <= 0 else x)
+
+    return df
+
 def split_sets(df, test_cores=['PS75-056-1', 'LV28-44-3', 'SO264-69-2']):
     """
     Separate train+validation and test set cores, and 
@@ -99,8 +109,15 @@ def export_datasets(data, main_dir, targets=['CaCO3%', 'TOC%']):
         df.to_csv(f'{sub_dir}/info_{get_date()}.csv', index=False)
 
 def main():    
+    # define the targets
+    targets = ['CaCO3%', 'TOC%']
+
     # load the joined spe and targets files with info
     compile_df = pd.read_csv('data/spe+bulk_dataset_20220629.csv', index_col=0)
+
+    # replace zero and negative values with 0.001
+    compile_df = replace_zero_and_negative(compile_df, targets=targets)
+    print(compile_df[targets].describe())
 
     # seperate train+validation and test set cores
     data = split_sets(compile_df)
@@ -108,8 +125,9 @@ def main():
     main_dir = 'data/finetune'
     # create the main directory
     os.makedirs(main_dir, exist_ok=True)
+
     # output the raw spectra and targets
-    export_datasets(data, main_dir, targets=['CaCO3%', 'TOC%'])
+    export_datasets(data, main_dir, targets=targets)
 
 if __name__ == '__main__':
     main()
