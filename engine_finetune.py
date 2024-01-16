@@ -8,9 +8,23 @@ preds and targets: (batch_size, 1, 2)
 
 import torch
 
+def standardize_targets(targets: torch.Tensor, preds: torch.Tensor):
+    """
+    Standardize the targets and preds.
+    targets: (batch_size, 1, 2)
+    preds: (batch_size, 1, 2)
+    """
+
+    mean = targets.mean(dim=0)
+    std = targets.std(dim=0)
+    targets = (targets - mean) / std
+    preds = (preds - mean) / std
+
+    return targets, preds
+
 def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
                     dataloader: torch.utils.data.DataLoader, optimizer: torch.optim.Optimizer,
-                    device: torch.device = 'cuda', mask_ratio: float = 0.75):
+                    device: torch.device = 'cuda'):
 
     model = model.to(device)
 
@@ -25,7 +39,8 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
         optimizer.zero_grad()
 
         with torch.cuda.amp.autocast():
-            preds, _ = model(samples, mask_ratio=mask_ratio)
+            preds = model(samples)
+            targets, preds = standardize_targets(targets, preds)
             loss = criterion(preds, targets)
         
         loss.backward()
@@ -37,8 +52,7 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
 
 @torch.no_grad()
 def evaluate(model: torch.nn.Module, criterion: torch.nn.Module, 
-             dataloader: torch.utils.data.DataLoader, device: torch.device = 'cuda',
-             mask_ratio: float = 0.75):
+             dataloader: torch.utils.data.DataLoader, device: torch.device = 'cuda'):
     total_loss = 0.
     model.eval()  # turn on evaluation mode
 
@@ -47,7 +61,8 @@ def evaluate(model: torch.nn.Module, criterion: torch.nn.Module,
         targets = batch['target'].to(device, non_blocking=True, dtype=torch.float)
         
         with torch.cuda.amp.autocast():
-            preds, _ = model(samples, mask_ratio=mask_ratio)
+            preds = model(samples)
+            targets, preds = standardize_targets(targets, preds)
             loss = criterion(preds, targets)
         total_loss += loss.item()
 

@@ -10,11 +10,12 @@ from timm.models.vision_transformer import Block
 from util.patch_embed import PatchEmbed
 from util.pos_embed import get_1d_sincos_pos_embed
 
-class MaskedAutoencoderViT(nn.Module):
-    """ Masked Autoencoder with VisionTransformer backbone
+class SpectrumRegressor(nn.Module):
+    """ Masked Autoencoder without the masking part for downstream task:
+        regression of CaCO3 and TOC.
     """
     # modify img_size to spe_size (2048)
-    def __init__(self, spe_size=2048, patch_size=16, mask_ratio=0.75,
+    def __init__(self, spe_size=2048, patch_size=16,
                  embed_dim=1024, depth=24, num_heads=16,
                  mlp_ratio=4., norm_layer=nn.LayerNorm):
         """
@@ -31,7 +32,6 @@ class MaskedAutoencoderViT(nn.Module):
         self.patch_embed = PatchEmbed(spe_size, patch_size, embed_dim)
         self.cls_token = nn.Parameter(torch.zeros(1, 1, embed_dim))
         self.pos_embed = nn.Parameter(torch.zeros(1, self.patch_embed.num_patches + 1, embed_dim), requires_grad=False)  # fixed sin-cos embedding
-        self.mask_ratio = mask_ratio
 
         self.blocks = nn.ModuleList([
             Block(embed_dim, num_heads, mlp_ratio, qkv_bias=True, qk_norm=None, norm_layer=norm_layer)
@@ -61,7 +61,7 @@ class MaskedAutoencoderViT(nn.Module):
         # timm's trunc_normal_(std=.02) is effectively normal_(std=0.02) as cutoff is too big (2.)
         torch.nn.init.normal_(self.cls_token, std=.02)
 
-        # initialize nn.Linear, nn.LayerNorm and nn.Conv1d with xavier_uniform
+        # initialize nn.Linear, nn.LayerNorm, nn.Conv1d
         self.apply(self._init_weights)
 
     def _init_weights(self, m):
@@ -76,64 +76,12 @@ class MaskedAutoencoderViT(nn.Module):
         elif isinstance(m, nn.Conv1d):
             torch.nn.init.xavier_uniform_(m.weight)
 
-    def patchify(self, spes):
-        """patchify target for loss calculation
-        spe: (N, spe_size)
-        x: (N, num_patches, patch_size)
-        """
-        assert spes.shape[1] % self.patch_embed.patch_size == 0
-
-        x = spes.reshape(
-            shape=(spes.shape[0], self.patch_embed.num_patches, self.patch_embed.patch_size)
-            )
-        return x
-
-    def unpatchify(self, x):
-        """
-        x: (N, num_patches, patch_size)
-        spe: (N, spe_size)
-        """
-        x = x.reshape(
-            shape=(x.shape[0], self.patch_embed.num_patches * self.patch_embed.patch_size)
-            )
-        return x
-
-    def random_masking(self, x, mask_ratio):
-        """
-        Perform per-sample random masking by per-sample shuffling.
-        Per-sample shuffling is done by argsort random noise.
-        x: [N, num_patches, embded_dim]
-        """
-        N, L, D = x.shape  # batch, length, dim
-        len_keep = int(L * (1 - mask_ratio))
-        
-        noise = torch.rand(N, L, device=x.device)  # noise in [0, 1]
-        
-        # sort noise for each sample
-        ids_shuffle = torch.argsort(noise, dim=1)  # ascend: small is keep, large is remove
-        ids_restore = torch.argsort(ids_shuffle, dim=1)
-
-        # keep the first subset
-        ids_keep = ids_shuffle[:, :len_keep]
-        x_masked = torch.gather(x, dim=1, index=ids_keep.unsqueeze(-1).repeat(1, 1, D))
-
-        # generate the binary mask: 0 is keep, 1 is remove
-        mask = torch.ones([N, L], device=x.device)
-        mask[:, :len_keep] = 0
-        # unshuffle to get the binary mask
-        mask = torch.gather(mask, dim=1, index=ids_restore)
-
-        return x_masked, mask, ids_restore
-
-    def forward(self, x, mask_ratio):
+    def forward(self, x):
         # embed patches
         x = self.patch_embed(x)
 
         # add pos embed w/o cls token
         x = x + self.pos_embed[:, 1:, :]
-
-        # masking: length -> length * mask_ratio
-        x, mask, _ = self.random_masking(x, mask_ratio)
 
         # append cls token
         cls_token = self.cls_token + self.pos_embed[:, :1, :]
@@ -149,10 +97,10 @@ class MaskedAutoencoderViT(nn.Module):
         # (N, 1, 2)
         pred = self.fc(x[:, 0]) * 100  # scale to 0-100, relevent to weighting percent unit
         
-        return pred, mask
+        return pred
     
 def mae_vit_base_patch16_dec512d8b(pretrained: bool, **kwargs):
-    model = MaskedAutoencoderViT(
+    model = SpectrumRegressor(
         patch_size=16, embed_dim=768, depth=12, num_heads=12,
         mlp_ratio=4, norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
     

@@ -73,8 +73,8 @@ def trainer(model: torch.nn.Module,
         print(logs)    
         print('-' * 89)
     
-    visualize(train_loss_list, val_loss_list, 'results', notes)
-    output_logs(logs_list, 'results', notes)
+    visualize(train_loss_list, val_loss_list, 'results/loss_plots', notes)
+    output_logs(logs_list, 'results/logs', notes)
     return val_loss_list[-1]
 
 def main(lr, val_loss_best, epochs, notes):
@@ -84,7 +84,7 @@ def main(lr, val_loss_best, epochs, notes):
     """
     
     batch_size = 256
-    dataloader = get_dataloader(ispretrain=False, annotations_file='info_20240112.csv', input_dir='data/finetune/train', 
+    dataloader = get_dataloader(ispretrain=False, annotations_file='info_20240116.csv', input_dir='data/finetune/train', 
                                 batch_size=batch_size, transform=standardize)   
 
     # load modified pre-trained model
@@ -120,14 +120,14 @@ def main(lr, val_loss_best, epochs, notes):
 if __name__ == '__main__':
     # initialize an expected loss that triggers the save of model
     val_loss_list = [20]
-    lr_list = [1e-5, 1e-6]
+    lr_list = [1e-4, 1e-5, 1e-6, 1e-7]
     # notes for naming output files
     notes = 'lr'
 
     # initialize the output txt file
     output_file = f'results/tuning_{notes}_{get_date()}.csv'
     with open(output_file, 'w') as f:
-        f.write('lr,min_val_loss\n')
+        f.write(f'{notes},min_val_loss\n')
 
     for lr in lr_list:
         # further naming details
