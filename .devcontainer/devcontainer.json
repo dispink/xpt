@@ -36,7 +36,8 @@
 				"ms-toolsai.vscode-jupyter-slideshow",
 				"ms-python.vscode-pylance",
 				"GitHub.copilot",
-				"GrapeCity.gc-excelviewer"
+				"GrapeCity.gc-excelviewer",
+				"ms-python.black-formatter"
 			]
 		}
 	},
