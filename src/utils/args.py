@@ -50,8 +50,8 @@ def get_tune_args() -> Namespace:
 
     # Fine-tune parameters
     parser.add_argument('--finetune', required=True)
-    parser.add_argument('--global_pool', action='store_true')
-    parser.add_argument('--cls_token', action='store_true')
+    parser.add_argument('--predict_layer', default='cls_token',
+                        choices=['cls_token', 'global_pool'])
 
     # Hyper-parameters
     parser.add_argument('--batch_size', ytpe=int)
