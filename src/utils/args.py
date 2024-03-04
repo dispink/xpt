@@ -47,12 +47,12 @@ def get_tune_args() -> Namespace:
     # Model parameters
     parser.add_argument('--model', default='base',
                         choices=['base', 'large', 'huge'])
-    
+
     # Fine-tune parameters
     parser.add_argument('--finetune', required=True)
     parser.add_argument('--global_pool', action='store_true')
     parser.add_argument('--cls_token', action='store_true')
-    
+
     # Hyper-parameters
     parser.add_argument('--batch_size', ytpe=int)
     parser.add_argument('--epochs', type=int)
@@ -67,3 +67,23 @@ def get_tune_args() -> Namespace:
     parser.add_argument('--accum_iter', type=int)
 
     return parser.parse_args()
+
+
+def get_eval_args() -> Namespace:
+    parser = ArgumentParser()
+    # General parameters
+    parser.add_argument('--pretrain')
+    parser.add_argument('--downstream')
+    parser.add_argument('--data_path')
+    parser.add_argument('--checkpoint')
+    parser.add_argument('--output_dir')
+    parser.add_argument('--log_dir')
+
+    # Device parameters
+    parser.add_argument('--device', default='cpu')
+    parser.add_argument('--num_workers', default=8, type=int)
+    parser.add_argument('--pin_memory', action='store_true')
+
+    # Inference parameters
+    parser.add_argument('--batch_size', ytpe=int)
+    return parser.add_argument()
