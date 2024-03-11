@@ -63,4 +63,4 @@ class LogTransform():
         return log_transform(x, self.eps)
 
     def reverse(self, x: torch.Tensor):
-        return denormalize(x, self.eps)
+        return torch.exp(x) - self.eps
