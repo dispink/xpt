@@ -9,3 +9,4 @@ output_dir
 results
 models
 .venv
+archives/data
