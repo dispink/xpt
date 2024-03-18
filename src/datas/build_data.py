@@ -5,12 +5,27 @@ import os
 import pandas as pd
 
 
-def build_pretrain(out_dir: str, spe_csv: str, test_cores: list):
+def split_sets(df, test_cores=["PS75-056-1", "LV28-44-3", "SO264-69-2"]):
+    """
+    Separate train+validation and test set cores, and
+    return a dictionary with pd.DataFrames named as 'train' and 'test' keys.
+
+    df: a pd.DataFrame of spectra or targets compiled
+    test_cores: a list of test set core names, default is ['PS75-056-1', 'LV28-44-3', 'SO264-69-2'],
+                which are the cores used in the ref paper, Lee et al. (2022).
+    """
+    data = {}
+    data["train"] = df[~df.core.isin(test_cores)].copy()
+    data["test"] = df[df.core.isin(test_cores)].copy()
+
+    return data
+
+
+def build_pretrain(out_dir: str, spe_csv: str):
     """Prepare the pretrain data ready for training.
     Args:
         out_dir: str, the directory to save the pretrain data.
         spe_csv: str, the path to the raw spectra csv.
-        test_cores: list of test core names.
     """
 
     # create the directory for the spectra
@@ -25,23 +40,22 @@ def build_pretrain(out_dir: str, spe_csv: str, test_cores: list):
     print(spe_df.head())
 
     # split training and test set cores
-    train_df = spe_df[~spe_df.core.isin(test_cores)].copy()
-    test_df = spe_df[spe_df.core.isin(test_cores)].copy()
+    dfs = split_sets(spe_df)
     del spe_df
 
     # output files
-    for df, dataset in zip([train_df, test_df], ["train", "test"]):
+    for dataset in ["train", "test"]:
         # raw spectra
-        for row in df.iterrows():
+        for row in dfs[dataset].iterrows():
             row[1][1:2049].to_csv(
                 f"{out_dir}/{dataset}/spe/{row[0]}.csv", index=False, header=False
             )
 
-        print(f"{len(df)} spectra exorted as {dataset} set.")
+        print(f"{len(dfs[dataset])} spectra exorted as {dataset} set.")
 
         # the annotation file
-        df["dirname"] = [f"{id}.csv" for id in df.index]
-        df = df[
+        dfs[dataset]["dirname"] = [f"{id}.csv" for id in dfs[dataset].index]
+        dfs[dataset] = dfs[dataset][
             [
                 "dirname",
                 "composite_id",
@@ -53,13 +67,14 @@ def build_pretrain(out_dir: str, spe_csv: str, test_cores: list):
                 "section",
             ]
         ]
-        df.to_csv(f"{out_dir}/{dataset}/info_{dataset}.csv", index=False)
+        dfs[dataset].to_csv(f"{out_dir}/{dataset}/info.csv", index=False)
 
-        print(df.head())
+        print(dfs[dataset].head())
 
+
+# def build_finetune(out_dir: str, spe_csv: str, test_cores: list):
 
 if __name__ == "__main__":
     out_dir = "data/pretrain"
     spe_csv = "data/legacy/spe_dataset_20220629.csv"
-    test_cores = ["PS75-056-1", "LV28-44-3", "SO264-69-2"]
-    build_pretrain(out_dir, spe_csv, test_cores)
+    build_pretrain(out_dir, spe_csv)
