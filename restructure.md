@@ -122,6 +122,8 @@ Downstream tasks: Regression on TOC and CaCO3, respectively.
 
 1. **docs**: Include any project-related documentation, such as data dictionaries, or project specifications.
 
+1. **results**: Store output files, reports, or visualizations.
+
 1. **logs**: Store log files generated during model training, evaluation, or other experiments.
 
 1. **models**: Store all the trained models. It is further divided into subfolders:
@@ -133,7 +135,7 @@ Downstream tasks: Regression on TOC and CaCO3, respectively.
     - **models**: Scripts for model architectures, loss functions, and evaluation metrics.
     - **training**: Scripts for training and evaluation.
     - **inference**: Scripts for inference and prediction on the test or new data.
-    - **utils**: Utility scripts for logging, visualization, and other helper functions.
+    - **utils**: Utility scripts for logging and other helper functions.
 
 1. **archive**: Store old or deprecated scripts, models, or data. 
 
