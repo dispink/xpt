@@ -23,6 +23,7 @@ def get_train_args() -> Namespace:
     parser.add_argument('--epochs', type=int)
 
     # Optimizer parameters
+    parser.add_argument('--optim', default='AdamW')
     parser.add_argument('--weight_decay', default=0, type=float)
     parser.add_argument('--blr', type=float)
     parser.add_argument('--min_lr', default=0, type=float)
@@ -58,10 +59,13 @@ def get_tune_args() -> Namespace:
     parser.add_argument('--epochs', type=int)
 
     # Optimizer parameters
+    parser.add_argument('--optim', default='AdamW')
+    parser.add_argument('--lr_scheduler', default='ConstantLR')
     parser.add_argument('--clip_grad', type=float)
-    parser.add_argument('weight_decay', type=float)
+    parser.add_argument('--weight_decay', type=float)
     parser.add_argument('--blr', type=float)
     parser.add_argument('--min_lr', defulat=0, type=float)
+    parser.add_argument('--betas', defulat=(0.9, 0.95), type=float, nargs=2)
     parser.add_argument('--layer_decay', type=float)
     parser.add_argument('--warmup_epochs', type=int)
     parser.add_argument('--accum_iter', type=int)
