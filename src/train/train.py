@@ -2,7 +2,7 @@ import time
 
 import torch
 from torch import nn
-from torch.nn import optimizer, lr_scheduler
+from torch.optim import optimizer, lr_scheduler
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
