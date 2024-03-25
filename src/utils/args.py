@@ -28,6 +28,7 @@ def get_train_args() -> Namespace:
     parser.add_argument("--min_lr", default=0, type=float)
     parser.add_argument("--warmup_epochs", type=int)
     parser.add_argument("--accum_iter", default=1, type=int)
+    parser.add_argument("--lr_clip", default=0.5, type=float)
 
     # Learning rate scheduler parameters
     parser.add_argument("--lr_scheduler", default="warmup-consine-annealing")
