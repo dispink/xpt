@@ -5,7 +5,8 @@ from torch.utils.data import DataLoader
 
 def evaluate(model: nn.Module, dataloader: DataLoader, device="cuda"):
     total_loss = 0.0
-    model.eval()  # turn on evaluation mode
+    # turn on evaluation mode
+    model.eval()
 
     with torch.no_grad():
         for samples in dataloader:

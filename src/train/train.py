@@ -4,7 +4,7 @@ from torch.nn import optimizer, lr_scheduler
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
-from .eval import evaluate
+from ..eval.eval import evaluate
 
 
 def train_one_epoch(
@@ -38,6 +38,7 @@ def trainer(
     scheduler: lr_scheduler,
     epochs: int,
     writer: SummaryWriter | None,
+    args,
 ):
     """
     Main training loops.
@@ -52,7 +53,7 @@ def trainer(
 
     for epoch in range(1, epochs + 1):
         epoch_loss = train_one_epoch(
-            model=model, dataloader=dataloaders["train"], optimizer=optimizer
+            model=model, dataloader=dataloaders["train"], optimizer=optimizer, args=args
         )
         writer.add_scalar("train_loss", epoch_loss, epoch)
 
@@ -60,7 +61,6 @@ def trainer(
         writer.add_scalar("lr", lr, epoch)
         scheduler.step()
 
-        if 'val' in dataloaders:
-            val_loss = evaluate(model, dataloader=dataloaders['eval'])
+        if "val" in dataloaders:
+            val_loss = evaluate(model=model, dataloader=dataloaders["eval"])
             writer.add_scalar("validation", val_loss, epoch)
-
