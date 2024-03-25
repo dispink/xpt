@@ -8,8 +8,8 @@ import torch.nn as nn
 from timm.models.vision_transformer import Block
 
 # it is also modified to match our naive patch embedding
-from util.patch_embed import PatchEmbed
-from util.pos_embed import get_1d_sincos_pos_embed
+from .patch_embed import PatchEmbed
+from .pos_embed import get_1d_sincos_pos_embed
 
 class MaskedAutoencoderViT(nn.Module):
     """ Masked Autoencoder with VisionTransformer backbone
