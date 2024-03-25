@@ -67,10 +67,11 @@ def trainer(
         writer.add_scalar("lr", lr, epoch)
         scheduler.step()
 
-        verbose_string = (
-            f"epoch {epoch: 3d} | time: {elapsed: 5.2f} |"
-            " train loss {epoch_loss:.3f}"
-        )
+        if args.verbose:
+            verbose_string = (
+                f"epoch {epoch: 3d} | time: {elapsed: 5.2f} |"
+                " train loss {epoch_loss:.3f}"
+            )
 
         if "val" in dataloaders:
             val_loss = evaluate(model=model, dataloader=dataloaders["eval"])
