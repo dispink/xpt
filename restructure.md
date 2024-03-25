@@ -131,8 +131,10 @@ Downstream tasks: Regression on TOC and CaCO3, respectively.
     - **fine-tuned**: Fine-tuned models.
 
 1. **src**: Contain all the scripts used in the project. It is further divided into subfolders:
-    - **data**: Scripts for data preprocessing, and data loading.
+    - **datas**: Scripts for data preprocessing, and data loading.
     - **models**: Scripts for model architectures, loss functions, and evaluation metrics.
+    - **train**: Scripts for training and related functions.
+    - **eval**: Scripts for evalutaion and related functions.
     - **training**: Scripts for training and evaluation.
     - **inference**: Scripts for inference and prediction on the test or new data.
     - **utils**: Utility scripts for logging and other helper functions.
