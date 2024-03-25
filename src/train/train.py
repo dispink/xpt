@@ -1,3 +1,5 @@
+import time
+
 import torch
 from torch import nn
 from torch.nn import optimizer, lr_scheduler
@@ -52,15 +54,30 @@ def trainer(
     """
 
     for epoch in range(1, epochs + 1):
+        if args.verbose:
+            epoch_start_time = time.time()
         epoch_loss = train_one_epoch(
             model=model, dataloader=dataloaders["train"], optimizer=optimizer, args=args
         )
+        if args.verbose:
+            elapsed = time.time() - epoch_start_time
         writer.add_scalar("train_loss", epoch_loss, epoch)
 
         lr = scheduler.get_last_lr()[0]
         writer.add_scalar("lr", lr, epoch)
         scheduler.step()
 
+        verbose_string = (
+            f"epoch {epoch: 3d} | time: {elapsed: 5.2f} |"
+            " train loss {epoch_loss:.3f}"
+        )
+
         if "val" in dataloaders:
             val_loss = evaluate(model=model, dataloader=dataloaders["eval"])
             writer.add_scalar("validation", val_loss, epoch)
+            verbose_string += f" | valid loss {val_loss: .3f}"
+        else:
+            val_loss = None
+
+        if args.verbose:
+            print(verbose_string)
