@@ -5,7 +5,7 @@ def get_train_args() -> Namespace:
     parser = ArgumentParser()
     # General parameters
     parser.add_argument("--data_path")
-    parser.add_argument("-output_dir", required=True)
+    parser.add_argument("--output_dir", required=True)
     parser.add_argument("--resume", action="store_true")
 
     # Device parameters
