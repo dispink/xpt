@@ -46,6 +46,7 @@ def get_tune_args() -> Namespace:
     parser.add_argument("--data_path")
     parser.add_argument("--output_dir")
     parser.add_argument("--log_dir")
+    parser.add_argument("--verbose", action="store_true")
 
     # Device parameters
     parser.add_argument("--device", default="cpu")
