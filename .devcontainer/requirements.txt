@@ -9,6 +9,7 @@ transformers
 timm
 tensorboard
 scikit-learn
+tensorboard
 
 # For data science
 scipy
