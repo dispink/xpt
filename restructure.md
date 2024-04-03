@@ -135,11 +135,10 @@ Downstream tasks: Regression on TOC and CaCO3, respectively.
     - **models**: Scripts for model architectures, loss functions, and evaluation metrics.
     - **train**: Scripts for training and related functions.
     - **eval**: Scripts for evalutaion and related functions.
-    - **training**: Scripts for training and evaluation.
     - **inference**: Scripts for inference and prediction on the test or new data.
     - **utils**: Utility scripts for logging and other helper functions.
 
-1. **archive**: Store old or deprecated scripts, models, or data. 
+1. **archives**: Store old or deprecated scripts, models, or data. 
 
 1. **pilot**: Store pilot experiments before integrating into the main project.
 

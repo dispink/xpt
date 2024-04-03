@@ -69,9 +69,10 @@ We adopt the container template, `cuda118`, from <https://github.com/dispink/doc
     - **fine-tuned**: Fine-tuned models.
 
 1. **src**: Contain all the scripts used in the project. It is further divided into subfolders:
-    - **data**: Scripts for data preprocessing, and data loading.
+    - **datas**: Scripts for data preprocessing, and data loading.
     - **models**: Scripts for model architectures, loss functions, and evaluation metrics.
-    - **training**: Scripts for training and evaluation.
+    - **train**: Scripts for training and related functions.
+    - **eval**: Scripts for evalutaion and related functions.
     - **inference**: Scripts for inference and prediction on the test or new data.
     - **utils**: Utility scripts for logging and other helper functions.
 
