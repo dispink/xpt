@@ -1,4 +1,4 @@
-from torch import optim, lr_scheduler
+from torch import optim
 
 
 def get_optimizer(params, args):
@@ -13,13 +13,13 @@ def get_optimizer(params, args):
 
 def get_lr_scheduler(optimizer, args):
     if args.lr_scheduler == "warmup-cosine-annealing":
-        scheduler0 = lr_scheduler.LinearLR(
+        scheduler0 = optim.lr_scheduler.LinearLR(
             optimizer, start_factor=args.warmup_start_factor, end_factor=1.0
         )
-        scheduler1 = lr_scheduler.CosineAnnealingLR(
+        scheduler1 = optim.lr_scheduler.CosineAnnealingLR(
             optimizer, T_max=args.annealing_epochs
         )
-        scheduler = lr_scheduler.SequentialLR(
+        scheduler = optim.lr_scheduler.SequentialLR(
             optimizer,
             schedulers=[scheduler0, scheduler1],
             milestones=[args.warmup_epochs, args.annealing_epochs],
