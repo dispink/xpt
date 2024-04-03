@@ -3,7 +3,6 @@ from functools import partial
 import torch
 import torch.nn as nn
 
-# skip the delicate patch embedding
 # from timm.models.vision_transformer import PatchEmbed, Block
 from timm.models.vision_transformer import Block
 
@@ -16,7 +15,7 @@ class MaskedAutoencoderViT(nn.Module):
     """Masked Autoencoder with VisionTransformer backbone"""
 
     # modify img_size to spe_size (2048)
-    # no need to have in_chans and embed_dim because we areusing naive patch embedding
+    # no need to have in_chans because we treat spectrum in 1D data
     def __init__(
         self,
         spe_size=2048,
@@ -44,8 +43,6 @@ class MaskedAutoencoderViT(nn.Module):
         # --------------------------------------------------------------------------
         # MAE encoder specifics
         self.patch_embed = PatchEmbed(spe_size, patch_size, embed_dim)
-        # self.patch_size = patch_size
-        # self.num_patches = int(spe_size/patch_size)  # 128
         self.cls_token = nn.Parameter(torch.zeros(1, 1, embed_dim))
         self.pos_embed = nn.Parameter(
             torch.zeros(1, self.patch_embed.num_patches + 1, embed_dim),
@@ -175,7 +172,7 @@ class MaskedAutoencoderViT(nn.Module):
         return x
 
     def unpatchify(self, x):
-        """ITS NOT USED...???
+        """
         (old)
         x: (N, L, patch_size**2 *3)
         imgs: (N, 3, H, W)
