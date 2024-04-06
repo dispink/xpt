@@ -21,6 +21,8 @@ def get_dataloader(
     input_dir: str,
     batch_size: int,
     transform=None,
+    data_transformer=None,
+    args=None,
 ):
     """
     Get dataloaders (in dictionary) from split datasets.
@@ -29,9 +31,11 @@ def get_dataloader(
 
     # decide which dataset to use
     if ispretrain:
-        dataset = PretrainDataset(annotations_file, input_dir, transform=transform)
+        dataset = PretrainDataset(
+            annotations_file, input_dir, transform=transform, data_transformer=data_transformer)
     else:
-        dataset = FinetuneDataset(annotations_file, input_dir, transform=transform)
+        dataset = FinetuneDataset(
+            annotations_file, input_dir, transform=transform, data_transformer=data_transformer)
 
     # split the dataset into train and val sets
     data_train, data_val = split(dataset)
@@ -42,7 +46,7 @@ def get_dataloader(
             data_train,
             batch_size=batch_size,
             shuffle=True,
-            num_workers=10,
+            num_workers=args.num_workers,
             pin_memory=True,
         ),
         "val": DataLoader(

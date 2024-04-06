@@ -5,6 +5,8 @@ def get_train_args() -> Namespace:
     parser = ArgumentParser()
     # General parameters
     parser.add_argument("--data_path")
+    parser.add_argument("--annotation_file")
+    parser.add_argument("--input_dir")
     parser.add_argument("--output_dir", required=True)
     parser.add_argument("--resume", action="store_true")
     parser.add_argument("--verbose", action="store_true")
@@ -21,6 +23,7 @@ def get_train_args() -> Namespace:
     # Hyper-parameters
     parser.add_argument("--batch_size", type=int)
     parser.add_argument("--epochs", type=int)
+    parser.add_argument("--transform")
 
     # Optimizer parameters
     parser.add_argument("--optim", default="AdamW")
@@ -65,6 +68,7 @@ def get_tune_args() -> Namespace:
     # Hyper-parameters
     parser.add_argument("--batch_size", ytpe=int)
     parser.add_argument("--epochs", type=int)
+    parser.add_argument("--transform")
 
     # Optimizer parameters
     parser.add_argument("--optim", default="AdamW")
