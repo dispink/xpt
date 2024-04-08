@@ -4,7 +4,6 @@ from argparse import ArgumentParser, Namespace
 def get_train_args() -> Namespace:
     parser = ArgumentParser()
     # General parameters
-    parser.add_argument("--data_path")
     parser.add_argument("--annotation_file")
     parser.add_argument("--input_dir")
     parser.add_argument("--output_dir", required=True)
@@ -46,9 +45,9 @@ def get_train_args() -> Namespace:
 def get_tune_args() -> Namespace:
     parser = ArgumentParser()
     # General parameters
-    parser.add_argument("--data_path")
+    parser.add_argument("--annotation_file")
+    parser.add_argument("--input_dir")
     parser.add_argument("--output_dir")
-    parser.add_argument("--log_dir")
     parser.add_argument("--verbose", action="store_true")
 
     # Device parameters
