@@ -31,10 +31,11 @@ class PretrainDataset(Dataset):
         spe = torch.from_numpy(np.loadtxt(
             input_path, delimiter=',', dtype=int))
         if self.data_transformer:
-            spe = torch.Tensor(spe)
             spe = self.data_transformer.apply(spe)
         elif self.transform:
+            spe = spe.cpu().numpy()
             spe = self.transform(spe)
+            spe = torch.from_numpy(spe)
         return spe
 
 
@@ -69,10 +70,11 @@ class FinetuneDataset(Dataset):
             spe_path, delimiter=',', dtype=float))
 
         if self.data_transformer:
-            spe = torch.Tensor(spe)
             spe = self.data_transformer.apply(spe)
         elif self.transform:
+            spe = spe.cpu().numpy()
             spe = self.transform(spe)
+            spe = torch.from_numpy(spe)
 
         target_path = os.path.join(
             self.input_dir, 'target', self.info_df.iloc[idx, 0])
