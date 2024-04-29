@@ -5,7 +5,7 @@ def get_optimizer(params, args):
     if args.optim == "Adam":
         optimizer = optim.Adam(params, args.blr)
     elif args.optim == "AdamW":
-        optimizer = optim.AdamW(params, args.blr, betas=tuple(args.betas))
+        optimizer = optim.AdamW(params, args.blr, betas=args.betas)
     else:
         raise NotImplementedError(f"{args.optim} is not implemented.")
     return optimizer
@@ -22,7 +22,7 @@ def get_lr_scheduler(optimizer, args):
         scheduler = optim.lr_scheduler.SequentialLR(
             optimizer,
             schedulers=[scheduler0, scheduler1],
-            milestones=[args.warmup_epochs, args.annealing_epochs],
+            milestones=[args.warmup_epochs],
         )
     else:
         raise NotImplementedError(f"{args.lr_scheduler} is not implemented.")
