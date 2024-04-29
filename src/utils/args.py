@@ -20,9 +20,9 @@ def get_train_args() -> Namespace:
     parser.add_argument("--mask_ratio", default=0.8, type=float)
 
     # Hyper-parameters
-    parser.add_argument("--batch_size", type=int)
-    parser.add_argument("--epochs", type=int)
-    parser.add_argument("--transform")
+    parser.add_argument("--batch_size", default=32, type=int)
+    parser.add_argument("--epochs", default=90, type=int)
+    parser.add_argument("--transform", default='instance_normalize')
 
     # Optimizer parameters
     parser.add_argument("--optim", default="AdamW")

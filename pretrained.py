@@ -44,6 +44,8 @@ def main(args):
             data_transformer=data_transformer,
             args=args,
         )
+    else:
+        raise NotImplementedError
 
     if args.model == "base":
         model = mae_vit.mae_vit_base_patch16()
