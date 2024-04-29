@@ -44,9 +44,12 @@ def main(args):
             data_transformer=data_transformer,
             args=args,
         )
+    else:
+        raise NotImplementedError
 
     if args.model == "base":
-        model = mae_vit_regressor.mae_vit_base_patch16(args.fine_tune)
+        model = mae_vit_regressor.mae_vit_base_patch16(args.pretrained_weight,
+                                                       pretrained=not args.from_scratch)
     
 
     optimizer, scheduler = get_optimizer_lr_scheduler(
