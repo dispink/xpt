@@ -69,10 +69,11 @@ def get_tune_args() -> Namespace:
     parser.add_argument("--batch_size", default=32, type=int)
     parser.add_argument("--epochs", default=90, type=int)
     parser.add_argument("--transform", default="instance_normalize")
+    parser.add_argument("--transform_targets", default="instance_normalize")
 
     # Optimizer parameters
     parser.add_argument("--optim", default="AdamW")
-    parser.add_argument("--clip_grad", type=float)
+    parser.add_argument("--lr_clip", default=0.5, type=float)
     parser.add_argument("--weight_decay", type=float)
     parser.add_argument("--blr", default=1e-3, type=float)
     parser.add_argument("--min_lr", default=0, type=float)

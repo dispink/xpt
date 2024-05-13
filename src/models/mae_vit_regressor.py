@@ -25,6 +25,7 @@ class SpectrumRegressor(nn.Module):
         depth=24,
         num_heads=16,
         mlp_ratio=4.0,
+        output_channels=1,
         norm_layer=nn.LayerNorm,
     ):
         """
@@ -63,7 +64,7 @@ class SpectrumRegressor(nn.Module):
         # --------------------------------------------------------------------------
         # New head for regression: CaCO3 and TOC
         # output is fixed in 0-1
-        self.fc = nn.Sequential(nn.Linear(embed_dim, 2), nn.Sigmoid())
+        self.fc = nn.Sequential(nn.Linear(embed_dim, output_channels), nn.Sigmoid())
 
         self.initialize_weights()
 
@@ -123,7 +124,7 @@ class SpectrumRegressor(nn.Module):
         return pred
 
 
-def mae_vit_base_patch16_dec512d8b(pretrained: bool, **kwargs):
+def mae_vit_base_patch16_dec512d8b(pretrained: bool, weights=None, **kwargs):
     model = SpectrumRegressor(
         patch_size=16,
         embed_dim=768,
@@ -136,9 +137,7 @@ def mae_vit_base_patch16_dec512d8b(pretrained: bool, **kwargs):
 
     if pretrained:
         # adopt pretrained model's weights to the new model
-        pretrained_state = torch.load(
-            "models/mae_vit_base_patch16_l-coslr_1e-05_20231229.pth"
-        )
+        pretrained_state = torch.load(weights)
         model_state = model.state_dict()
         compiled_state = model_state.copy()
 

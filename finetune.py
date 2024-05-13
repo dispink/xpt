@@ -48,19 +48,19 @@ def main(args):
         raise NotImplementedError
 
     if args.model == "base":
-        model = mae_vit_regressor.mae_vit_base_patch16(args.pretrained_weight,
-                                                       pretrained=not args.from_scratch)
-    
+        model = mae_vit_regressor.mae_vit_base_patch16(pretrained=not args.from_scratch,
+                                                       weights=args.pretrained_weight,)
+    criterion = torch.nn.MSELoss()
 
     optimizer, scheduler = get_optimizer_lr_scheduler(
         model.parameters(), args)
 
-    train.trainer(model, dataloader, optimizer, scheduler,
-                  args.epochs, log_writer, args)
+    train.finetune_trainer(model, criterion, dataloader, optimizer, scheduler,
+                           args.epochs, log_writer, args)
 
     model = model.cpu()
     torch.save(model.state_dict(),
-               os.path.join(model.state_dict(), 'model.ckpt'))
+               os.path.join(args.output_dir, 'model.ckpt'))
 
 
 if __name__ == '__main__':
