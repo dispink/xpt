@@ -70,11 +70,11 @@ def trainer(
         if args.verbose:
             verbose_string = (
                 f"epoch {epoch: 3d} | time: {elapsed: 5.2f} |"
-                " train loss {epoch_loss:.3f}"
+                f" train loss {epoch_loss:.3f}"
             )
 
         if "val" in dataloaders:
-            val_loss = evaluate(model=model, dataloader=dataloaders["eval"])
+            val_loss = evaluate(model=model, dataloader=dataloaders["val"])
             writer.add_scalar("validation", val_loss, epoch)
             verbose_string += f" | valid loss {val_loss: .3f}"
         else:

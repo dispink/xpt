@@ -62,7 +62,7 @@ def main(args):
 
     model = model.cpu()
     torch.save(model.state_dict(),
-               os.path.join(model.state_dict(), 'model.ckpt'))
+               os.path.join(args.output_dir, 'model.ckpt'))
 
 
 if __name__ == '__main__':
