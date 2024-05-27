@@ -84,7 +84,9 @@ class FinetuneDataset(Dataset):
             spe = torch.from_numpy(spe)
 
         target_path = os.path.join(self.input_dir, "target", self.info_df.iloc[idx, 0])
-        target = torch.from_numpy(np.loadtxt(target_path, delimiter=",", dtype=float))
+        target = torch.from_numpy(
+            np.loadtxt(target_path, delimiter=",", dtype=float)
+        ).unsqueeze(-1)
 
         sample = {"spe": spe, "target": target}
 
