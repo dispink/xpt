@@ -8,8 +8,13 @@ from torch.utils.data import Dataset
 
 class PretrainDataset(Dataset):
 
-    def __init__(self, annotations_file: str, input_dir: str,
-                 transform: object = None, data_transformer=None):
+    def __init__(
+        self,
+        annotations_file: str,
+        input_dir: str,
+        transform: object = None,
+        data_transformer=None,
+    ):
         """
         Initialize a Dataset object for pretraining.
 
@@ -28,8 +33,7 @@ class PretrainDataset(Dataset):
 
     def __getitem__(self, idx):
         input_path = os.path.join(self.input_dir, self.spe_info.iloc[idx, 0])
-        spe = torch.from_numpy(np.loadtxt(
-            input_path, delimiter=',', dtype=int))
+        spe = torch.from_numpy(np.loadtxt(input_path, delimiter=",", dtype=int))
         if self.data_transformer:
             spe = self.data_transformer.apply(spe)
         elif self.transform:
@@ -41,8 +45,13 @@ class PretrainDataset(Dataset):
 
 class FinetuneDataset(Dataset):
 
-    def __init__(self, annotations_file: str, input_dir: str,
-                 data_transformer: object = None, transform: object = None):
+    def __init__(
+        self,
+        annotations_file: str,
+        input_dir: str,
+        data_transformer: object = None,
+        transform: object = None,
+    ):
         """
         Initialize a Dataset object for finetuning.
 
@@ -64,10 +73,8 @@ class FinetuneDataset(Dataset):
         return len(self.info_df)
 
     def __getitem__(self, idx):
-        spe_path = os.path.join(self.input_dir, 'spe',
-                                self.info_df.iloc[idx, 0])
-        spe = torch.from_numpy(np.loadtxt(
-            spe_path, delimiter=',', dtype=float))
+        spe_path = os.path.join(self.input_dir, "spe", self.info_df.iloc[idx, 0])
+        spe = torch.from_numpy(np.loadtxt(spe_path, delimiter=",", dtype=float))
 
         if self.data_transformer:
             spe = self.data_transformer.apply(spe)
@@ -76,11 +83,9 @@ class FinetuneDataset(Dataset):
             spe = self.transform(spe)
             spe = torch.from_numpy(spe)
 
-        target_path = os.path.join(
-            self.input_dir, 'target', self.info_df.iloc[idx, 0])
-        target = torch.from_numpy(np.loadtxt(
-            target_path, delimiter=',', dtype=float))
+        target_path = os.path.join(self.input_dir, "target", self.info_df.iloc[idx, 0])
+        target = torch.from_numpy(np.loadtxt(target_path, delimiter=",", dtype=float))
 
-        sample = {'spe': spe, 'target': target}
+        sample = {"spe": spe, "target": target}
 
         return sample
