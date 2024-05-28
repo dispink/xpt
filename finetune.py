@@ -22,6 +22,7 @@ def main(args):
             batch_size=args.batch_size,
             transform=transforms.standardize_numpy,
             num_workers=args.num_workers,
+            pin_memory=args.pin_memory,
         )
     elif args.transform == "normalize":
         # TODO: calculate the mean and variance for each channel.
@@ -33,6 +34,7 @@ def main(args):
             batch_size=args.batch_size,
             data_transformer=data_transformer,
             num_workers=args.num_workers,
+            pin_memory=args.pin_memory,
         )
     elif args.transform == "log":
         data_transformer = transforms.LogTransform()
@@ -43,6 +45,7 @@ def main(args):
             batch_size=args.batch_size,
             data_transformer=data_transformer,
             num_workers=args.num_workers,
+            pin_memory=args.pin_memory,
         )
     else:
         raise NotImplementedError
