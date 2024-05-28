@@ -50,7 +50,7 @@ def get_dataloader(
             pin_memory=True,
         ),
         "val": DataLoader(
-            data_val, batch_size=batch_size, num_workers=4, pin_memory=True
+            data_val, batch_size=batch_size, num_workers=num_workers, pin_memory=True
         ),
     }
 
