@@ -37,7 +37,8 @@
 				"ms-python.vscode-pylance",
 				"GitHub.copilot",
 				"GrapeCity.gc-excelviewer",
-				"ms-python.black-formatter"
+				"ms-python.black-formatter",
+				"ms-toolsai.tensorboard"
 			]
 		}
 	},

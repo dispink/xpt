@@ -124,7 +124,7 @@ def export_data(df, out_dir, target):
 
     # output the annotation file
     df = df[["filename", "core", "mid_depth_mm"]]
-    df.to_csv(f"{out_dir}/info_.csv", index=False)
+    df.to_csv(f"{out_dir}/info.csv", index=False)
 
 
 def build_finetune(out_dir: str, spe_csv: str, targets: list):
