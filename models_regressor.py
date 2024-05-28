@@ -62,9 +62,9 @@ class SpectrumRegressor(nn.Module):
         self.norm = norm_layer(embed_dim)
 
         # --------------------------------------------------------------------------
-        # New head for single regression
+        # New head for regression: CaCO3 and TOC
         # output is fixed in 0-1
-        self.fc = nn.Sequential(nn.Linear(embed_dim, 1), nn.Sigmoid())
+        self.fc = nn.Sequential(nn.Linear(embed_dim, 2), nn.Sigmoid())
 
         self.initialize_weights()
 
@@ -115,8 +115,8 @@ class SpectrumRegressor(nn.Module):
             x = blk(x)
         x = self.norm(x)
 
-        # transform the cls to a logit standing for the regression target
-        # (N, 1, 1)
+        # transform the cls to logits
+        # (N, 1, 2)
         pred = (
             self.fc(x[:, 0]) * 100
         )  # scale to 0-100, relevent to weighting percent unit

@@ -19,8 +19,9 @@ def evaluate(model: nn.Module, dataloader: DataLoader, device="cuda"):
 def standardize_targets(targets: torch.Tensor, preds: torch.Tensor):
     """
     Standardize the targets and preds.
-    targets: (batch_size, 1, 1)
-    preds: (batch_size, 1, 1)
+    targets: (batch_size, 1, num_measurements)
+    preds: (batch_size, 1, num_measurements)
+    num_measurements: how many kinds of measurements the model predicts
     """
 
     mean = targets.mean(dim=0)

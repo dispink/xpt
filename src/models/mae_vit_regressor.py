@@ -2,18 +2,22 @@
 
 It's copied from model_mae.py. Except the added head, the kept codes should be identical to it.
 """
+
 from functools import partial
 
 import torch
 import torch.nn as nn
 from timm.models.vision_transformer import Block
-from util.patch_embed import PatchEmbed
-from util.pos_embed import get_1d_sincos_pos_embed
+from patch_embed import PatchEmbed
+from pos_embed import get_1d_sincos_pos_embed
 
 
 class SpectrumRegressor(nn.Module):
     """Masked Autoencoder without the masking part for downstream task:
     regression of CaCO3 and TOC.
+
+    output_channels: how many kinds of measurements the model predicts.
+    Default is 1 to keep simplicity.
     """
 
     # modify img_size to spe_size (2048)
@@ -62,7 +66,7 @@ class SpectrumRegressor(nn.Module):
         self.norm = norm_layer(embed_dim)
 
         # --------------------------------------------------------------------------
-        # New head for regression: CaCO3 and TOC
+        # New head for regression
         # output is fixed in 0-1
         self.fc = nn.Sequential(nn.Linear(embed_dim, output_channels), nn.Sigmoid())
 
