@@ -10,6 +10,7 @@ timm
 tensorboard
 scikit-learn
 tensorboard
+torch-tb-profiler
 
 # For data science
 scipy
