@@ -22,7 +22,7 @@ def get_dataloader(
     batch_size: int,
     transform=None,
     data_transformer=None,
-    args=None,
+    num_workers=1,
 ):
     """
     Get dataloaders (in dictionary) from split datasets.
@@ -46,7 +46,7 @@ def get_dataloader(
             data_train,
             batch_size=batch_size,
             shuffle=True,
-            num_workers=args.num_workers,
+            num_workers=num_workers,
             pin_memory=True,
         ),
         "val": DataLoader(
