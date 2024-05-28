@@ -19,8 +19,8 @@ def evaluate(model: nn.Module, dataloader: DataLoader, device="cuda"):
 def standardize_targets(targets: torch.Tensor, preds: torch.Tensor):
     """
     Standardize the targets and preds.
-    targets: (batch_size, 1, 2)
-    preds: (batch_size, 1, 2)
+    targets: (batch_size, 1, 1)
+    preds: (batch_size, 1, 1)
     """
 
     mean = targets.mean(dim=0)
@@ -32,15 +32,18 @@ def standardize_targets(targets: torch.Tensor, preds: torch.Tensor):
 
 
 @torch.no_grad()
-def finetune_evaluate(model: torch.nn.Module, criterion: torch.nn.Module,
-                      dataloader: torch.utils.data.DataLoader, device: torch.device = 'cuda'):
-    total_loss = 0.
+def finetune_evaluate(
+    model: torch.nn.Module,
+    criterion: torch.nn.Module,
+    dataloader: torch.utils.data.DataLoader,
+    device: torch.device = "cuda",
+):
+    total_loss = 0.0
     model.eval()  # turn on evaluation mode
 
     for batch in dataloader:
-        samples = batch['spe'].to(device, non_blocking=True, dtype=torch.float)
-        targets = batch['target'].to(
-            device, non_blocking=True, dtype=torch.float)
+        samples = batch["spe"].to(device, non_blocking=True, dtype=torch.float)
+        targets = batch["target"].to(device, non_blocking=True, dtype=torch.float)
 
         with torch.cuda.amp.autocast():
             preds = model(samples)
