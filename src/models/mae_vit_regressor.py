@@ -8,8 +8,8 @@ from functools import partial
 import torch
 import torch.nn as nn
 from timm.models.vision_transformer import Block
-from patch_embed import PatchEmbed
-from pos_embed import get_1d_sincos_pos_embed
+from src.models.patch_embed import PatchEmbed
+from src.models.pos_embed import get_1d_sincos_pos_embed
 
 
 class SpectrumRegressor(nn.Module):
