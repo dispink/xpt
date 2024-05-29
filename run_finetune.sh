@@ -1,0 +1,11 @@
+python finetune.py \
+    --annotation_file info.csv \
+    --input_dir data/finetune/TOC%/train/ \
+    --output_dir results/ \
+    --verbose \
+    --device cuda \
+    --pretrained_weight models/mae_base_patch16_lr_1e-06_20240116.pth \
+    --batch_size 256 \
+    --epochs 100 \
+    --blr 1e-6 \
+    --annealing_epochs 90
