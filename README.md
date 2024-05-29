@@ -10,7 +10,7 @@ Our study aims to address the challenges by harnessing two interdisciplinary adv
 We proposed a pretraining-finetuning framework that leverages the vast amount of XRF spectra to pretrain a foundation model. **Masked Spectrum Modeling (MSM)** is modifed from [BERT](https://arxiv.org/abs/1810.04805), [ViT](https://arxiv.org/abs/2010.11929), and [MAE](https://arxiv.org/abs/2111.06377) to our pretraining process. It is designed to let our foundation model learn the underlying patterns and relationships in the XRF spectra, which can be transferred to downstream tasks. The pretraining process is followed by fine-tuning the model on specific geological proxies to adapt the model to the target tasks. Hence, the downstream fine-tuning does not necessary require large amount of labeled data, which is contrast to the conventional method training a model from scratch in each project. 
 
 <p align="center">
-  <img src="results/demo_patch_combined.png" width="360" />
+  <img src="files/demo_patch_combined.png" width="360" />
 </p>
 
 ### The work has been published on EGU2024 as a poster:
