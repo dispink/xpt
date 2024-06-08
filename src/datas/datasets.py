@@ -55,8 +55,7 @@ class FinetuneDataset(Dataset):
         Output:
             sample (dict): {'spe': spectrum, 'target': target}
         """
-        info_path = os.path.join(input_dir, annotations_file)
-        self.info_df = pd.read_csv(info_path)
+        self.info_df = pd.read_csv(annotations_file)
         self.input_dir = input_dir
         self.transform = transform
 
