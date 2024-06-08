@@ -30,7 +30,7 @@ class PretrainDataset(Dataset):
         return len(self.spe_info)
 
     def __getitem__(self, idx):
-        input_path = os.path.join(self.input_dir, self.spe_info.iloc[idx, 0])
+        input_path = os.path.join(self.input_dir, 'spe', self.spe_info.iloc[idx, 0])
         spe = torch.from_numpy(np.loadtxt(input_path, delimiter=",", dtype=float))
         spe = self.transform(spe)
         return spe
