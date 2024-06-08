@@ -18,7 +18,7 @@ def get_lr_scheduler(optimizer, args):
             optimizer, start_factor=args.warmup_start_factor, end_factor=1.0
         )
         scheduler1 = optim.lr_scheduler.CosineAnnealingLR(
-            optimizer, T_max=args.annealing_epochs
+            optimizer, T_max=args.epochs - args.warmup_epochs
         )
         scheduler = optim.lr_scheduler.SequentialLR(
             optimizer,
