@@ -12,8 +12,7 @@ class PretrainDataset(Dataset):
         self,
         annotations_file: str,
         input_dir: str,
-        transform: object = None,
-        data_transformer=None,
+        transform: object = lambda x: x,
     ):
         """
         Initialize a Dataset object for pretraining.
@@ -26,20 +25,14 @@ class PretrainDataset(Dataset):
         self.spe_info = pd.read_csv(annotations_file)
         self.input_dir = input_dir
         self.transform = transform
-        self.data_transformer = data_transformer
 
     def __len__(self):
         return len(self.spe_info)
 
     def __getitem__(self, idx):
         input_path = os.path.join(self.input_dir, self.spe_info.iloc[idx, 0])
-        spe = torch.from_numpy(np.loadtxt(input_path, delimiter=",", dtype=int))
-        if self.data_transformer:
-            spe = self.data_transformer.apply(spe)
-        elif self.transform:
-            spe = spe.cpu().numpy()
-            spe = self.transform(spe)
-            spe = torch.from_numpy(spe)
+        spe = torch.from_numpy(np.loadtxt(input_path, delimiter=",", dtype=float))
+        spe = self.transform(spe)
         return spe
 
 
@@ -49,8 +42,7 @@ class FinetuneDataset(Dataset):
         self,
         annotations_file: str,
         input_dir: str,
-        data_transformer: object = None,
-        transform: object = None,
+        transform: object = lambda x: x,
     ):
         """
         Initialize a Dataset object for finetuning.
@@ -66,7 +58,6 @@ class FinetuneDataset(Dataset):
         info_path = os.path.join(input_dir, annotations_file)
         self.info_df = pd.read_csv(info_path)
         self.input_dir = input_dir
-        self.data_transformer = data_transformer
         self.transform = transform
 
     def __len__(self):
@@ -75,13 +66,7 @@ class FinetuneDataset(Dataset):
     def __getitem__(self, idx):
         spe_path = os.path.join(self.input_dir, "spe", self.info_df.iloc[idx, 0])
         spe = torch.from_numpy(np.loadtxt(spe_path, delimiter=",", dtype=float))
-
-        if self.data_transformer:
-            spe = self.data_transformer.apply(spe)
-        elif self.transform:
-            spe = spe.cpu().numpy()
-            spe = self.transform(spe)
-            spe = torch.from_numpy(spe)
+        spe = self.transform(spe)
 
         target_path = os.path.join(self.input_dir, "target", self.info_df.iloc[idx, 0])
         target = torch.from_numpy(

@@ -1,66 +1,32 @@
 import torch
+from torch import nn
 import numpy as np
 
 
-def standardize_numpy(spe):
-    """
-    spe: numpy array of shape (n_channels)
-    Standardize the spectrum to have zero mean and unit variance.
-    """
-    mean = np.mean(spe, axis=0)
-    std = np.std(spe, axis=0)
-    spe = (spe - mean) / std
-    return spe
+class InstanceNorm(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, x: torch.Tensor):
+        return (x - x.mean(dim=-1, keepdim=True)) / x.std(dim=-1, keepdim=True)
 
 
-def log_transform_numpy(spe):
-    """
-    spe: numpy array of shape (n_channels)
-    Apply log transform to the spectrum.
-    Add 1 to avoid log(0).
-    """
-    spe = np.log(spe+1)
-    return spe
-
-
-def normalize(x, mean, std):
-    return (x - mean) / std
-
-
-def denormalize(x, mean, std):
-    return std * x + mean
-
-
-def log_transform(x, eps=1):
-    return torch.log(x + eps)
-
-
-def exp_transform(x, eps=1):
-    return torch.exp(x) - eps
-
-
-class NormalizeTransform():
+class Normalize(nn.Module):
     def __init__(self, mean, std):
+        super().__init__()
         self.mean = mean
         self.std = std
 
-    def apply(self, x: torch.Tensor):
+    def forward(self, x: torch.Tensor):
         self.mean = self.mean.to(x.device)
         self.std = self.std.to(x.device)
-        return normalize(x, self.mean, self.std)
-
-    def reverse(self, x: torch.Tensor):
-        self.mean = self.mean.to(x.device)
-        self.std = self.std.to(x.device)
-        return denormalize(x, self.mean, self.std)
+        return (x - self.mean) / self.std
 
 
-class LogTransform():
+class LogTransform(nn.Module):
     def __init__(self, eps=1):
+        super().__init__()
         self.eps = eps
 
-    def apply(self, x: torch.Tensor):
-        return log_transform(x, self.eps)
-
-    def reverse(self, x: torch.Tensor):
-        return torch.exp(x) - self.eps
+    def forward(self, x: torch.Tensor):
+        return torch.log(x + self.eps)

@@ -20,30 +20,28 @@ def main(args):
             annotations_file=args.annotation_file,
             input_dir=args.input_dir,
             batch_size=args.batch_size,
-            transform=transforms.standardize_numpy,
+            transform=transforms.InstanceNorm(),
             num_workers=args.num_workers,
             pin_memory=args.pin_memory,
         )
     elif args.transform == "normalize":
         # TODO: calculate the mean and variance for each channel.
-        data_transformer = transforms.NormalizeTransform()
         dataloader = get_dataloader(
             ispretrain=True,
             annotations_file=args.annotation_file,
             input_dir=args.input_dir,
             batch_size=args.batch_size,
-            data_transformer=data_transformer,
+            transformer=transforms.Normalize,
             num_workers=args.num_workers,
             pin_memory=args.pin_memory,
         )
     elif args.transform == "log":
-        data_transformer = transforms.LogTransform()
         dataloader = get_dataloader(
             ispretrain=True,
             annotations_file=args.annotation_file,
             input_dir=args.input_dir,
             batch_size=args.batch_size,
-            data_transformer=data_transformer,
+            transformer=transforms.LogTransform(),
             num_workers=args.num_workers,
             pin_memory=args.pin_memory,
         )

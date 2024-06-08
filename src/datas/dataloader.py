@@ -21,7 +21,6 @@ def get_dataloader(
     input_dir: str,
     batch_size: int,
     transform=None,
-    data_transformer=None,
     num_workers=1,
     pin_memory=True,
 ):
@@ -33,10 +32,10 @@ def get_dataloader(
     # decide which dataset to use
     if ispretrain:
         dataset = PretrainDataset(
-            annotations_file, input_dir, transform=transform, data_transformer=data_transformer)
+            annotations_file, input_dir, transform=transform)
     else:
         dataset = FinetuneDataset(
-            annotations_file, input_dir, transform=transform, data_transformer=data_transformer)
+            annotations_file, input_dir, transform=transform)
 
     # split the dataset into train and val sets
     data_train, data_val = split(dataset)
