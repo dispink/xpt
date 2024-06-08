@@ -16,7 +16,8 @@ def get_train_args() -> Namespace:
     parser.add_argument("--pin_memory", action="store_true")
 
     # Model parameters
-    parser.add_argument("--model", default="base", choices=["base", "large", "huge"])
+    parser.add_argument("--model", default="base",
+                        choices=["base", "large", "huge"])
     parser.add_argument("--mask_ratio", default=0.8, type=float)
 
     # Hyper-parameters
@@ -29,7 +30,8 @@ def get_train_args() -> Namespace:
     parser.add_argument("--weight_decay", default=0, type=float)
     parser.add_argument("--blr", default=1e-3, type=float)
     parser.add_argument("--min_lr", default=0, type=float)
-    parser.add_argument("--betas", default=(0.9, 0.95), type=float, nargs="*")
+    parser.add_argument("--beta0", default=0.9, type=float)
+    parser.add_argument("--beta1", default=0.95, type=float)
     parser.add_argument("--accum_iter", default=1, type=int)
     parser.add_argument("--lr_clip", default=0.5, type=float)
 
@@ -56,7 +58,8 @@ def get_tune_args() -> Namespace:
     parser.add_argument("--pin_memory", action="store_true")
 
     # Model parameters
-    parser.add_argument("--model", default="base", choices=["base", "large", "huge"])
+    parser.add_argument("--model", default="base",
+                        choices=["base", "large", "huge"])
 
     # Fine-tune parameters
     parser.add_argument("--pretrained_weight")
@@ -77,7 +80,8 @@ def get_tune_args() -> Namespace:
     parser.add_argument("--weight_decay", type=float)
     parser.add_argument("--blr", default=1e-3, type=float)
     parser.add_argument("--min_lr", default=0, type=float)
-    parser.add_argument("--betas", default=(0.9, 0.95), type=float, nargs="*")
+    parser.add_argument("--beta0", default=0.9, type=float)
+    parser.add_argument("--beta1", default=0.95, type=float)
     parser.add_argument("--layer_decay", type=float)
     parser.add_argument("--accum_iter", type=int)
 

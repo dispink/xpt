@@ -5,7 +5,8 @@ def get_optimizer(params, args):
     if args.optim == "Adam":
         optimizer = optim.Adam(params, args.blr)
     elif args.optim == "AdamW":
-        optimizer = optim.AdamW(params, args.blr, betas=args.betas)
+        optimizer = optim.AdamW(
+            params, args.blr, betas=(args.beta0, args.beta1))
     else:
         raise NotImplementedError(f"{args.optim} is not implemented.")
     return optimizer

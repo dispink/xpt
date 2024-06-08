@@ -18,3 +18,6 @@ numpy
 pandas
 openpyxl
 matplotlib
+
+# Dependency issues
+protobuf==4.25
