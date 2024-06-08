@@ -22,6 +22,8 @@ def train_one_epoch(
         samples = samples.to(args.device, non_blocking=True, dtype=torch.float)
         with torch.cuda.amp.autocast():
             loss, _, _ = model(samples)
+            if torch.isnan(loss):
+                raise ValueError('The value of the loss is NaN.')
 
         optimizer.zero_grad()
         loss.backward()
@@ -161,6 +163,9 @@ def finetune_one_epoch(
             targets, preds = standardize_targets(targets, preds)
             targets = targets.reshape(*preds.shape)
             loss = criterion(preds, targets)
+
+            if torch.isnan(loss):
+                raise ValueError('The value of the loss is NaN.')
 
         optimizer.zero_grad()
         loss.backward()
