@@ -21,17 +21,21 @@ def main(args):
             input_dir=args.input_dir,
             batch_size=args.batch_size,
             transform=transforms.InstanceNorm(),
+            target_transform=transforms.InstanceNorm(),
             num_workers=args.num_workers,
             pin_memory=args.pin_memory,
         )
     elif args.transform == "normalize":
         # TODO: calculate the mean and variance for each channel.
+        norm_mean = torch.load('src/datas/xpt_data_mean.pth')
+        norm_std = torch.load('src/datas/xpt_data_std.pth')
         dataloader = get_dataloader(
             ispretrain=False,
             annotations_file=args.annotation_file,
             input_dir=args.input_dir,
             batch_size=args.batch_size,
-            transformer=transforms.Normalize,
+            transformer=transforms.Normalize(norm_mean, norm_std),
+            target_transform=transforms.InstanceNorm(),
             num_workers=args.num_workers,
             pin_memory=args.pin_memory,
         )
@@ -42,6 +46,7 @@ def main(args):
             input_dir=args.input_dir,
             batch_size=args.batch_size,
             transformer=transforms.LogTransform(),
+            target_transform=transforms.InstanceNorm(),
             num_workers=args.num_workers,
             pin_memory=args.pin_memory,
         )

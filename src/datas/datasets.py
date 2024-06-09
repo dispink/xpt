@@ -30,8 +30,10 @@ class PretrainDataset(Dataset):
         return len(self.spe_info)
 
     def __getitem__(self, idx):
-        input_path = os.path.join(self.input_dir, 'spe', self.spe_info.iloc[idx, 0])
-        spe = torch.from_numpy(np.loadtxt(input_path, delimiter=",", dtype=float))
+        input_path = os.path.join(
+            self.input_dir, 'spe', self.spe_info.iloc[idx, 0])
+        spe = torch.from_numpy(np.loadtxt(
+            input_path, delimiter=",", dtype=float))
         spe = self.transform(spe)
         return spe
 
@@ -43,6 +45,7 @@ class FinetuneDataset(Dataset):
         annotations_file: str,
         input_dir: str,
         transform: object = lambda x: x,
+        target_transform: object = lambda x: x,
     ):
         """
         Initialize a Dataset object for finetuning.
@@ -58,19 +61,24 @@ class FinetuneDataset(Dataset):
         self.info_df = pd.read_csv(annotations_file)
         self.input_dir = input_dir
         self.transform = transform
+        self.target_transform = target_transform
 
     def __len__(self):
         return len(self.info_df)
 
     def __getitem__(self, idx):
-        spe_path = os.path.join(self.input_dir, "spe", self.info_df.iloc[idx, 0])
-        spe = torch.from_numpy(np.loadtxt(spe_path, delimiter=",", dtype=float))
+        spe_path = os.path.join(self.input_dir, "spe",
+                                self.info_df.iloc[idx, 0])
+        spe = torch.from_numpy(np.loadtxt(
+            spe_path, delimiter=",", dtype=float))
         spe = self.transform(spe)
 
-        target_path = os.path.join(self.input_dir, "target", self.info_df.iloc[idx, 0])
+        target_path = os.path.join(
+            self.input_dir, "target", self.info_df.iloc[idx, 0])
         target = torch.from_numpy(
             np.loadtxt(target_path, delimiter=",", dtype=float)
         ).unsqueeze(-1)
+        target = self.target_transform(target)
 
         sample = {"spe": spe, "target": target}
 
