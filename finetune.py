@@ -15,7 +15,7 @@ def main(args):
     log_writer = get_log_writer(args)
 
     if args.target_transform == "instance_normalize":
-        target_transform = transforms.InstanceNorm()
+        target_transform = lambda x: x
     else:
         raise NotImplementedError
 
