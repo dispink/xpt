@@ -14,6 +14,11 @@ from src.utils.optim import get_optimizer_lr_scheduler
 def main(args):
     log_writer = get_log_writer(args)
 
+    if args.target_transform == "instance_normalize":
+        target_transform = transforms.InstanceNorm()
+    else:
+        raise NotImplementedError
+
     if args.transform == "instance_normalize":
         dataloader = get_dataloader(
             ispretrain=False,
@@ -21,7 +26,7 @@ def main(args):
             input_dir=args.input_dir,
             batch_size=args.batch_size,
             transform=transforms.InstanceNorm(),
-            target_transform=transforms.InstanceNorm(),
+            target_transform=target_transform,
             num_workers=args.num_workers,
             pin_memory=args.pin_memory,
         )
@@ -35,7 +40,7 @@ def main(args):
             input_dir=args.input_dir,
             batch_size=args.batch_size,
             transformer=transforms.Normalize(norm_mean, norm_std),
-            target_transform=transforms.InstanceNorm(),
+            target_transform=target_transform,
             num_workers=args.num_workers,
             pin_memory=args.pin_memory,
         )
@@ -46,7 +51,7 @@ def main(args):
             input_dir=args.input_dir,
             batch_size=args.batch_size,
             transformer=transforms.LogTransform(),
-            target_transform=transforms.InstanceNorm(),
+            target_transform=target_transform,
             num_workers=args.num_workers,
             pin_memory=args.pin_memory,
         )

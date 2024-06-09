@@ -72,7 +72,7 @@ def get_tune_args() -> Namespace:
     parser.add_argument("--batch_size", default=32, type=int)
     parser.add_argument("--epochs", default=90, type=int)
     parser.add_argument("--transform", default="instance_normalize")
-    parser.add_argument("--transform_targets", default="instance_normalize")
+    parser.add_argument("--target_transform", default="instance_normalize")
 
     # Optimizer parameters
     parser.add_argument("--optim", default="AdamW")

@@ -8,6 +8,8 @@ class InstanceNorm(nn.Module):
         super().__init__()
 
     def forward(self, x: torch.Tensor):
+        if x.shape[-1] == 1:
+            return x
         return (x - x.mean(dim=-1, keepdim=True)) / x.std(dim=-1, keepdim=True)
 
 
