@@ -16,7 +16,7 @@ def main(args):
 
     if args.transform == "instance_normalize":
         dataloader = get_dataloader(
-            ispretrain=True,
+            ispretrain=False,
             annotations_file=args.annotation_file,
             input_dir=args.input_dir,
             batch_size=args.batch_size,
@@ -27,7 +27,7 @@ def main(args):
     elif args.transform == "normalize":
         # TODO: calculate the mean and variance for each channel.
         dataloader = get_dataloader(
-            ispretrain=True,
+            ispretrain=False,
             annotations_file=args.annotation_file,
             input_dir=args.input_dir,
             batch_size=args.batch_size,
@@ -37,7 +37,7 @@ def main(args):
         )
     elif args.transform == "log":
         dataloader = get_dataloader(
-            ispretrain=True,
+            ispretrain=False,
             annotations_file=args.annotation_file,
             input_dir=args.input_dir,
             batch_size=args.batch_size,
