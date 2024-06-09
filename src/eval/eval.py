@@ -16,6 +16,30 @@ def evaluate(model: nn.Module, dataloader: DataLoader, device="cuda"):
     return total_loss / len(dataloader)
 
 
+def get_mse(true_values, pred_values):
+    # all in tensor
+    loss = (true_values - pred_values) ** 2
+    loss = loss.mean()
+
+    return loss.item()
+
+
+def evaluate_base(dataloader):
+    """
+    Calculate the MSE of the base model, 
+    i.e., the model predicts only the mean of the target values.
+    """
+    data = torch.empty((0, 2048))
+
+    with torch.no_grad():
+        for samples in dataloader:
+            data = torch.cat((data, samples), 0)
+        mean = data.mean()
+        mse = get_mse(data, mean)
+
+    return mse
+
+
 def standardize_targets(targets: torch.Tensor, preds: torch.Tensor):
     """
     Standardize the targets and preds.
@@ -44,7 +68,8 @@ def finetune_evaluate(
 
     for batch in dataloader:
         samples = batch["spe"].to(device, non_blocking=True, dtype=torch.float)
-        targets = batch["target"].to(device, non_blocking=True, dtype=torch.float)
+        targets = batch["target"].to(
+            device, non_blocking=True, dtype=torch.float)
 
         with torch.cuda.amp.autocast():
             preds = model(samples)
