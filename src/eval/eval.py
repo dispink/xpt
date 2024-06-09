@@ -71,7 +71,7 @@ def finetune_evaluate(
         targets = batch["target"].to(
             device, non_blocking=True, dtype=torch.float)
 
-        with torch.cuda.amp.autocast():
+        with torch.no_grad():
             preds = model(samples)
             targets, preds = standardize_targets(targets, preds)
             loss = criterion(preds, targets)
