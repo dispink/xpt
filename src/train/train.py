@@ -76,7 +76,8 @@ def trainer(
             )
 
         if "val" in dataloaders:
-            val_loss = evaluate(model=model, dataloader=dataloaders["val"], device=args.device)
+            val_loss = evaluate(
+                model=model, dataloader=dataloaders["val"], device=args.device)
             writer.add_scalar("validation", val_loss, epoch)
             verbose_string += f" | valid loss {val_loss: .3f}"
         else:
