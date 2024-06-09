@@ -72,7 +72,9 @@ def get_tune_args() -> Namespace:
     parser.add_argument("--batch_size", default=32, type=int)
     parser.add_argument("--epochs", default=90, type=int)
     parser.add_argument("--transform", default="instance_normalize")
-    parser.add_argument("--target_transform", default="instance_normalize")
+    parser.add_argument("--target_transform", default="normalize")
+    parser.add_argument("--target_mean", default="src/datas/xpt_CaCO3_target_mean.pth")
+    parser.add_argument("--target_std", default="src/datas/xpt_CaCO3_target_std.pth")
 
     # Optimizer parameters
     parser.add_argument("--optim", default="AdamW")
