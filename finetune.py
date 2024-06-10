@@ -14,7 +14,11 @@ from src.utils.optim import get_optimizer_lr_scheduler
 def main(args):
     log_writer = get_log_writer(args)
 
-    if args.target_transform == "instance_normalize":
+    if args.target_transform == "normalize":
+        target_mean = torch.load(args.target_mean)
+        target_std = torch.load(args.target_std)
+        target_transform = transforms.Normalize(target_mean, target_std)
+    elif args.target_transform == "instance_normalize":
         target_transform = lambda x: x
     else:
         raise NotImplementedError
