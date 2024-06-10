@@ -6,7 +6,7 @@ from torch.optim import optimizer, lr_scheduler
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
-from ..eval.eval import evaluate, finetune_evaluate, standardize_targets
+from ..eval.eval import evaluate, finetune_evaluate
 
 
 def train_one_epoch(
@@ -160,9 +160,6 @@ def finetune_one_epoch(
 
         with torch.cuda.amp.autocast():
             preds = model(samples)
-
-            targets, preds = standardize_targets(targets, preds)
-            targets = targets.reshape(*preds.shape)
             loss = criterion(preds, targets)
 
             if torch.isnan(loss):

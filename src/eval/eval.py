@@ -40,22 +40,6 @@ def evaluate_base(dataloader):
     return mse
 
 
-def standardize_targets(targets: torch.Tensor, preds: torch.Tensor):
-    """
-    Standardize the targets and preds.
-    targets: (batch_size, 1, num_measurements)
-    preds: (batch_size, 1, num_measurements)
-    num_measurements: how many kinds of measurements the model predicts
-    """
-
-    mean = targets.mean(dim=0)
-    std = targets.std(dim=0)
-    targets = (targets - mean) / std
-    preds = (preds - mean) / std
-
-    return targets, preds
-
-
 def finetune_evaluate(
     model: torch.nn.Module,
     criterion: torch.nn.Module,
@@ -72,7 +56,6 @@ def finetune_evaluate(
 
         with torch.no_grad():
             preds = model(samples)
-            targets, preds = standardize_targets(targets, preds)
             loss = criterion(preds, targets)
         total_loss += loss.item()
 
