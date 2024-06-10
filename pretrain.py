@@ -33,7 +33,7 @@ def main(args):
             annotations_file=args.annotation_file,
             input_dir=args.input_dir,
             batch_size=args.batch_size,
-            transformer=transforms.Normalize(norm_mean, norm_std),
+            transform=transforms.Normalize(norm_mean, norm_std),
             num_workers=args.num_workers,
             pin_memory=args.pin_memory,
         )
@@ -43,7 +43,7 @@ def main(args):
             annotations_file=args.annotation_file,
             input_dir=args.input_dir,
             batch_size=args.batch_size,
-            transformer=transforms.LogTransform(),
+            transform=transforms.LogTransform(),
             num_workers=args.num_workers,
             pin_memory=args.pin_memory,
         )
