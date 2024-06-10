@@ -68,7 +68,8 @@ class SpectrumRegressor(nn.Module):
         # --------------------------------------------------------------------------
         # New head for regression
         # output is fixed in 0-1
-        self.fc = nn.Sequential(nn.Linear(embed_dim, output_channels), nn.Sigmoid())
+        self.fc = nn.Sequential(
+            nn.Linear(embed_dim, output_channels), nn.Sigmoid())
 
         self.initialize_weights()
 
@@ -78,7 +79,8 @@ class SpectrumRegressor(nn.Module):
         pos_embed = get_1d_sincos_pos_embed(
             self.pos_embed.shape[-1], self.patch_embed.num_patches, cls_token=True
         )
-        self.pos_embed.data.copy_(torch.from_numpy(pos_embed).float().unsqueeze(0))
+        self.pos_embed.data.copy_(
+            torch.from_numpy(pos_embed).float().unsqueeze(0))
 
         # initialize patch_embed
         w = self.patch_embed.proj.weight.data
@@ -126,6 +128,10 @@ class SpectrumRegressor(nn.Module):
         )  # scale to 0-100, relevent to weighting percent unit
 
         return pred
+
+    def predict_raw(self, x, mean=0, std=1, min_val=0, max_val=100):
+        pred = self.forward(x)
+        return torch.clip(std * pred + mean, min_val, max_val)
 
 
 def mae_vit_base_patch16_dec512d8b(pretrained: bool, weights=None, **kwargs):
