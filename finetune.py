@@ -19,7 +19,7 @@ def main(args):
         target_std = torch.load(args.target_std)
         target_transform = transforms.Normalize(target_mean, target_std)
     elif args.target_transform == "instance_normalize":
-        target_transform = lambda x: x
+        def target_transform(x): return x
     else:
         raise NotImplementedError
 
@@ -36,8 +36,8 @@ def main(args):
         )
     elif args.transform == "normalize":
         # TODO: calculate the mean and variance for each channel.
-        norm_mean = torch.load('src/datas/xpt_data_mean.pth')
-        norm_std = torch.load('src/datas/xpt_data_std.pth')
+        norm_mean = torch.load('src/datas/xpt_spe_mean.pth')
+        norm_std = torch.load('src/datas/xpt_spe_std.pth')
         dataloader = get_dataloader(
             ispretrain=False,
             annotations_file=args.annotation_file,
