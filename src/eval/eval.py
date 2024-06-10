@@ -60,3 +60,22 @@ def finetune_evaluate(
         total_loss += loss.item()
 
     return total_loss / len(dataloader)
+
+
+def finetune_evaluate_base(dataloader, mean, criterion):
+    """
+    Calculate the MSE of the base model, 
+    i.e., the model predicts only the mean of the target values.
+    """
+    total_loss = 0.0
+
+    for batch in dataloader:
+        targets = batch["target"]
+
+        with torch.no_grad():
+            preds = torch.full_like(targets, mean.item())
+            loss = criterion(preds, targets)
+
+        total_loss += loss.item()
+
+    return total_loss / len(dataloader)
