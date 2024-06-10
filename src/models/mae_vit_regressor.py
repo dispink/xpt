@@ -68,8 +68,7 @@ class SpectrumRegressor(nn.Module):
         # --------------------------------------------------------------------------
         # New head for regression
         # output is fixed in 0-1
-        self.fc = nn.Sequential(
-            nn.Linear(embed_dim, output_channels), nn.Sigmoid())
+        self.fc = nn.Sequential(nn.Linear(embed_dim, output_channels))
 
         self.initialize_weights()
 
@@ -124,7 +123,7 @@ class SpectrumRegressor(nn.Module):
         # transform the cls to logits
         # (N, 1, 2)
         pred = (
-            self.fc(x[:, 0]) * 100
+            self.fc(x[:, 0])
         )  # scale to 0-100, relevent to weighting percent unit
 
         return pred
