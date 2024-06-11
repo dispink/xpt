@@ -1,3 +1,5 @@
+#! /bin/bash
+
 target=CaCO3
 today=`date '+%Y%m%d'`;
 output_dir=results/finetune_test_${target}_$today

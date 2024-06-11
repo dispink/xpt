@@ -1,3 +1,5 @@
+#! /bin/bash
+
 today=`date '+%Y%m%d'`;
 output_dir=results/pretrain_test_$today
 mkdir $output_dir
