@@ -67,8 +67,7 @@ class SpectrumRegressor(nn.Module):
 
         # --------------------------------------------------------------------------
         # New head for regression
-        # output is fixed in 0-1
-        self.fc = nn.Sequential(nn.Linear(embed_dim, output_channels))
+        self.fc = nn.Linear(embed_dim, output_channels)
 
         self.initialize_weights()
 
