@@ -39,7 +39,6 @@ def get_train_args() -> Namespace:
     parser.add_argument("--lr_scheduler", default="warmup-cosine-annealing")
     parser.add_argument("--warmup_epochs", default=10, type=int)
     parser.add_argument("--warmup_start_factor", default=0.5, type=float)
-    parser.add_argument("--annealing_epochs", default=70, type=int)
 
     return parser.parse_args()
 
