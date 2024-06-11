@@ -23,7 +23,7 @@ class Normalize(nn.Module):
     def forward(self, x: torch.Tensor):
         self.mean = self.mean.to(x.device)
         self.std = self.std.to(x.device)
-        return (x - self.mean) / (self.std + self.eps)
+        return torch.where(self.std == 0, 0, (x - self.mean) / (self.std + self.eps))
 
 
 class LogTransform(nn.Module):
