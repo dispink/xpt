@@ -3,6 +3,8 @@
 target=CaCO3
 today=`date '+%Y%m%d'`;
 output_dir=results/finetune_test_${target}_$today
+pretrained_weight=results/pretrain_test_20240611/model.ckpt
+
 mkdir $output_dir
 
 python finetune.py \
@@ -11,7 +13,7 @@ python finetune.py \
     --output_dir $output_dir \
     --verbose \
     --device cuda \
-    --pretrained_weight results/pretrain_test_20240609/model.ckpt \
+    --pretrained_weight $pretrained_weight \
     --batch_size 256 \
     --epochs 100 \
     --blr 1e-6 \
