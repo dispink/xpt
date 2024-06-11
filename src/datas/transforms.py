@@ -14,15 +14,16 @@ class InstanceNorm(nn.Module):
 
 
 class Normalize(nn.Module):
-    def __init__(self, mean, std):
+    def __init__(self, mean, std, eps=1e-8):
         super().__init__()
         self.mean = mean
         self.std = std
+        self.eps = eps
 
     def forward(self, x: torch.Tensor):
         self.mean = self.mean.to(x.device)
         self.std = self.std.to(x.device)
-        return (x - self.mean) / self.std
+        return (x - self.mean) / (self.std + self.eps)
 
 
 class LogTransform(nn.Module):
