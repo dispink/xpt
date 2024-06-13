@@ -51,11 +51,11 @@ def main(args):
         raise NotImplementedError
 
     if args.model == "base":
-        model = mae_vit.mae_vit_base_patch16()
+        model = mae_vit.mae_vit_base_patch16(mask_ratio=args.mask_ratio)
     elif args.model == "large":
-        model = mae_vit.mae_vit_large_patch16()
+        model = mae_vit.mae_vit_large_patch16(mask_ratio=args.mask_ratio)
     elif args.model == "huge":
-        model = mae_vit.mae_vit_huge_patch14()
+        model = mae_vit.mae_vit_huge_patch14(mask_ratio=args.mask_ratio)
 
     optimizer, scheduler = get_optimizer_lr_scheduler(
         model.parameters(), args)
