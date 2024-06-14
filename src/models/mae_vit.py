@@ -1,3 +1,10 @@
+"""Modified Masked Autoencoder with VisionTransformer backbone
+
+It's copied from pilot/model_mae_loss.py, which is based on https://github.com/facebookresearch/mae/model_mae.py. 
+The modifications comparing to are as follows:
+    1. Modify embeddings to fit spectrum shape (2D -> 1D) 
+    2. Update codes to be compatible to the latest timm and numpy
+"""
 from functools import partial
 
 import torch
@@ -73,7 +80,7 @@ class MaskedAutoencoderViT(nn.Module):
         self.mask_token = nn.Parameter(torch.zeros(1, 1, decoder_embed_dim))
 
         self.decoder_pos_embed = nn.Parameter(
-            torch.zeros(1, self.patch_embed.num_patches + 1, decoder_embed_dim),
+            torch.zeros(1, self.patch_embed.num_patches+1, decoder_embed_dim),
             requires_grad=False,
         )  # fixed sin-cos embedding
 
@@ -104,13 +111,12 @@ class MaskedAutoencoderViT(nn.Module):
     def initialize_weights(self):
         # initialization
         # initialize (and freeze) pos_embed by sin-cos embedding
-        # pos_embed = get_2d_sincos_pos_embed(self.pos_embed.shape[-1], int(self.patch_embed.num_patches**.5), cls_token=True)
         pos_embed = get_1d_sincos_pos_embed(
             self.pos_embed.shape[-1], self.patch_embed.num_patches, cls_token=True
         )
-        self.pos_embed.data.copy_(torch.from_numpy(pos_embed).float().unsqueeze(0))
+        self.pos_embed.data.copy_(
+            torch.from_numpy(pos_embed).float().unsqueeze(0))
 
-        # decoder_pos_embed = get_2d_sincos_pos_embed(self.decoder_pos_embed.shape[-1], int(self.patch_embed.num_patches**.5), cls_token=True)
         decoder_pos_embed = get_1d_sincos_pos_embed(
             self.decoder_pos_embed.shape[-1],
             self.patch_embed.num_patches,
@@ -145,20 +151,11 @@ class MaskedAutoencoderViT(nn.Module):
 
     def patchify(self, spes):
         """patchify target for loss calculation
-        (old)
-        imgs: (N, 3, H, W)
-        x: (N, L, patch_size**2 *3)
-
-        (modified)
         spe: (N, spe_size)
         x: (N, num_patches, patch_size)
         """
-        # p = self.patch_embed.patch_size[0]
-        # assert spes.shape[2] == imgs.shape[3] and imgs.shape[2] % p == 0
         assert spes.shape[1] % self.patch_embed.patch_size == 0
 
-        # h = w = imgs.shape[2] // p
-        # x = imgs.reshape(shape=(imgs.shape[0], 3, h, p, w, p))
         x = spes.reshape(
             shape=(
                 spes.shape[0],
@@ -166,28 +163,13 @@ class MaskedAutoencoderViT(nn.Module):
                 self.patch_embed.patch_size,
             )
         )
-        # our patch embedding is naive, no need to permute and reshape again
-        # x = torch.einsum('nchpwq->nhwpqc', x) # relevant to x.permute(0, 3, 4, 1, 2, 5)
-        # x = x.reshape(shape=(imgs.shape[0], h * w, p**2 * 3))
         return x
 
     def unpatchify(self, x):
         """
-        (old)
-        x: (N, L, patch_size**2 *3)
-        imgs: (N, 3, H, W)
-
-        (modified)
         x: (N, num_patches, patch_size)
         spe: (N, spe_size)
         """
-        # p = self.patch_embed.patch_size
-        # h = w = int(x.shape[1]**.5)
-        # assert h * w == x.shape[1]
-
-        # x = x.reshape(shape=(x.shape[0], h, w, p, p, 3))
-        # x = torch.einsum('nhwpqc->nchpwq', x)
-        # imgs = x.reshape(shape=(x.shape[0], 3, h * p, h * p))
         x = x.reshape(
             shape=(
                 x.shape[0],
@@ -200,7 +182,7 @@ class MaskedAutoencoderViT(nn.Module):
         """
         Perform per-sample random masking by per-sample shuffling.
         Per-sample shuffling is done by argsort random noise.
-        x: [N, L, D], sequence
+        x: [N, num_patches, embded_dim]
         """
         N, L, D = x.shape  # batch, length, dim
         len_keep = int(L * (1 - mask_ratio))
@@ -215,7 +197,8 @@ class MaskedAutoencoderViT(nn.Module):
 
         # keep the first subset
         ids_keep = ids_shuffle[:, :len_keep]
-        x_masked = torch.gather(x, dim=1, index=ids_keep.unsqueeze(-1).repeat(1, 1, D))
+        x_masked = torch.gather(
+            x, dim=1, index=ids_keep.unsqueeze(-1).repeat(1, 1, D))
 
         # generate the binary mask: 0 is keep, 1 is remove
         mask = torch.ones([N, L], device=x.device)
@@ -279,12 +262,6 @@ class MaskedAutoencoderViT(nn.Module):
 
     def forward_loss(self, spes, pred, mask):
         """
-        (old)
-        imgs: [N, 3, H, W]
-        pred: [N, L, p*p*3]
-        mask: [N, L], 0 is keep, 1 is remove,
-
-        (modified)
         spes: [N, spe_size]
         pred: [N, num_patches, patch_size]
         mask: [N, num_patches], 0 is keep, 1 is remove
