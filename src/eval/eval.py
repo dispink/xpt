@@ -45,6 +45,7 @@ def finetune_evaluate(
     criterion: torch.nn.Module,
     dataloader: torch.utils.data.DataLoader,
     device: torch.device = "cuda",
+    reverse_pred=None
 ):
     total_loss = 0.0
     model.eval()  # turn on evaluation mode
@@ -56,6 +57,8 @@ def finetune_evaluate(
 
         with torch.no_grad():
             preds = model(samples)
+            if reverse_pred:
+                preds = reverse_pred(preds)
             loss = criterion(preds, targets)
         total_loss += loss.item()
 
