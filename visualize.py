@@ -136,6 +136,82 @@ def demo_reconstruction(root: str = os.getcwd()):
     plt.savefig(f"{root}/results/pred_without_mask.png", transparent=True)
 
 
+def check_transform(mask_ratio, weights, root: str = os.getcwd(), transform="normalize"):
+    import torch
+    from src.datas import datasets, transforms, dataloader
+    from src.models import mae_vit
+
+    if transform == "instance_normalize":
+        transform = transforms.InstanceNorm()
+
+    elif transform == "normalize":
+        norm_mean = torch.Tensor(torch.load('src/datas/xpt_spe_mean.pth'))
+        norm_std = torch.Tensor(torch.load('src/datas/xpt_spe_std.pth'))
+        transform = transforms.Normalize(norm_mean, norm_std)
+
+    elif transform == "log":
+        transform = transforms.LogTransform()
+
+    # load dataset
+    dataset = datasets.PretrainDataset(
+        annotations_file=f"{root}/data/pretrain/train/info.csv",
+        input_dir=f"{root}/data/pretrain/train",
+        transform=transform
+    )
+
+    _, data_val = dataloader.split(dataset)
+
+    # load model
+    model = mae_vit.mae_vit_base_patch16(mask_ratio=mask_ratio).to("cuda")
+    model.load_state_dict(
+        torch.load(weights)
+    )
+
+    model.eval()
+    with torch.no_grad():
+        spe = data_val[22].unsqueeze(0).to(
+            "cuda", non_blocking=True, dtype=torch.float)
+        loss, pred, mask = model(spe)
+        pred_un_arr, mask_un_arr = unpatchify_PredandMask(mask, pred, model)
+
+    spe_arr = spe.squeeze(0).cpu().numpy()
+
+    # create figures with transparent background
+    channel = np.arange(1, spe.shape[1] + 1)
+    ylim = (-4, spe_arr.max() + 1)
+    # 1 masked, 0 unmasked
+    mask_un = (mask_un_arr == 1)
+
+    # plot the masked spectrum
+    fig = plt.figure(figsize=(7, 5))
+    plt.plot(channel, spe_arr, alpha=0.5, label="target", c="C0")
+    plt.ylim(ylim)
+    plt.vlines(
+        channel[mask_un],
+        ymin=ylim[0],
+        ymax=np.repeat(ylim[1], mask_un.sum()),
+        color="gray",
+        label="masked",
+        alpha=0.1
+    )
+    plt.plot(channel, pred_un_arr, alpha=0.5,
+             label=f"pred (mse={loss:.2f})", c="C1")
+
+    plt.xlabel("Channel")
+    plt.ylabel("Standardized intensity")
+    plt.legend()
+    plt.tight_layout()
+
+    fig.savefig(
+        f"{root}/results/spe_{transform}.png")
+
+
 if __name__ == "__main__":
     # get root directory
-    demo_reconstruction()
+    mask_ratio = 0.1
+    transform = "instance_normalize"
+    check_transform(
+        mask_ratio=mask_ratio,
+        transform=transform,
+        weights=f"results/HPtuning/pretrain-mask-ratio-{mask_ratio}-blr-1e-4-transform-{transform}/model.ckpt")
+    # weights="results/pretrain_test_20240611/model.ckpt")
