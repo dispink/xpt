@@ -23,24 +23,53 @@ class DeNormalize(nn.Module):
 
 
 def main(args):
+    """
+    No need to transform the target values because we wish to see the metrics in the original scale.
+    Hence, the prediction of model needs to be denormalized back.
+    """
     criterion = torch.nn.MSELoss()
     device = torch.device('cuda')
 
-    annotation_file = f'data/finetune/{args.target}%/train/info.csv'
     target_mean = torch.load(f"src/datas/xpt_{args.target}_target_mean.pth")
     target_std = torch.load(f"src/datas/xpt_{args.target}_target_std.pth")
-    target_transform = transforms.Normalize(target_mean, target_std)
     reverse_pred = DeNormalize(target_mean, target_std)
 
     model = mae_vit_base_patch16(pretrained=True,
                                  weights=args.weights).to(device)
 
-    dataloader = get_dataloader(ispretrain=False,
-                                annotations_file=annotation_file,
-                                input_dir=f"data/finetune/{args.target}%/train",
-                                batch_size=1,
-                                transform=transforms.InstanceNorm(),
-                                num_workers=8)
+    if args.transform == "instance_normalize":
+        dataloader = get_dataloader(
+            ispretrain=False,
+            annotations_file=args.annotation_file,
+            input_dir=args.input_dir,
+            batch_size=1,
+            transform=transforms.InstanceNorm(),
+            num_workers=8
+        )
+    elif args.transform == "normalize":
+        # TODO: calculate the mean and variance for each channel.
+        norm_mean = torch.Tensor(torch.load('src/datas/xpt_spe_mean.pth'))
+        norm_std = torch.Tensor(torch.load('src/datas/xpt_spe_std.pth'))
+        dataloader = get_dataloader(
+            ispretrain=False,
+            annotations_file=args.annotation_file,
+            input_dir=args.input_dir,
+            batch_size=1,
+            transform=transforms.Normalize(norm_mean, norm_std),
+            num_workers=8
+        )
+    elif args.transform == "log":
+        dataloader = get_dataloader(
+            ispretrain=False,
+            annotations_file=args.annotation_file,
+            input_dir=args.input_dir,
+            batch_size=1,
+            transform=transforms.LogTransform(),
+            num_workers=8
+        )
+    else:
+        raise NotImplementedError
+
     dataloader = dataloader['val']
 
     model_mse = finetune_evaluate(model=model,
@@ -65,7 +94,11 @@ def main(args):
 
 if __name__ == '__main__':
     parser = ArgumentParser()
+    parser.add_argument("--annotation_file")
+    parser.add_argument("--input_dir")
     parser.add_argument('--target', default='CaCO3')
-    parser.add_argument('--weights')
     parser.add_argument('--output_dir')
+    parser.add_argument("--transform")
+    parser.add_argument('--weights')
+
     main(parser.parse_args())
