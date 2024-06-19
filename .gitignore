@@ -10,3 +10,4 @@ results
 /models
 .venv
 data.tar.gz
+HPtuning_pretrained.tar.gz
