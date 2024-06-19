@@ -54,13 +54,18 @@ def main(args):
 
     r_square = 1 - model_mse / base_mse
 
-    print(f'MSE: {model_mse:.3f},'
-          f' MSE of base model: {base_mse:.3f},'
-          f' R2: {r_square:.3f}')
+    results = f'MSE: {model_mse:.3f},\tMSE of base model: {base_mse:.3f},\tR2: {r_square:.3f}'
+    print(results)
+
+    # Save the results
+    if args.output_dir:
+        with open(f'{args.output_dir}/{args.target}.txt', 'w') as f:
+            f.write(results)
 
 
 if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument('--target', default='CaCO3')
     parser.add_argument('--weights')
+    parser.add_argument('--output_dir')
     main(parser.parse_args())
