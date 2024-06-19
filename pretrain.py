@@ -67,6 +67,8 @@ def main(args):
     torch.save(model.state_dict(),
                os.path.join(args.output_dir, 'model.ckpt'))
 
+    del model
+
 
 if __name__ == '__main__':
     args = get_train_args()
