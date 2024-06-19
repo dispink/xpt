@@ -35,7 +35,14 @@ do
                     --transform $scale \
                     --target_mean src/datas/xpt_${target}_target_mean.pth \
                     --target_std src/datas/xpt_${target}_target_std.pth
-                python3 eval_finetune.py --target $target --weight "$output_dir/model.ckpt" --output_dir $output_dir
+                
+                python3 eval_finetune.py \
+                    --target $target \
+                    --annotation_file data/finetune/${target}%/train/info.csv \
+                    --input_dir data/finetune/${target}%/train \
+                    --output_dir $output_dir \
+                    --transform $scale \
+                    --weight "$output_dir/model.ckpt" 
             done
         done
     done
