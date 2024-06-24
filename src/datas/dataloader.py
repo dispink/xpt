@@ -24,6 +24,7 @@ def get_dataloader(
     target_transform=lambda x: x,
     num_workers=1,
     pin_memory=True,
+    test_only=False,
 ):
     """
     Get dataloaders (in dictionary) from split datasets.
@@ -44,20 +45,31 @@ def get_dataloader(
         )
 
     # split the dataset into train and val sets
-    data_train, data_val = split(dataset)
+    if test_only:
+        dataloader = {
+            "test": DataLoader(
+                dataset,
+                batch_size=batch_size,
+                shuffle=True,
+                num_workers=num_workers,
+                pin_memory=pin_memory,
+            ),
+        }
+    else:
+        data_train, data_val = split(dataset)
 
-    # create dataloaders
-    dataloader = {
-        "train": DataLoader(
-            data_train,
-            batch_size=batch_size,
-            shuffle=True,
-            num_workers=num_workers,
-            pin_memory=pin_memory,
-        ),
-        "val": DataLoader(
-            data_val, batch_size=batch_size, num_workers=num_workers, pin_memory=pin_memory
-        ),
-    }
+        # create dataloaders
+        dataloader = {
+            "train": DataLoader(
+                data_train,
+                batch_size=batch_size,
+                shuffle=True,
+                num_workers=num_workers,
+                pin_memory=pin_memory,
+            ),
+            "val": DataLoader(
+                data_val, batch_size=batch_size, num_workers=num_workers, pin_memory=pin_memory
+            ),
+        }
 
     return dataloader

@@ -44,10 +44,10 @@ def main(args):
             input_dir=args.input_dir,
             batch_size=1,
             transform=transforms.InstanceNorm(),
-            num_workers=8
+            num_workers=8,
+            test_only=args.test_only,
         )
     elif args.transform == "normalize":
-        # TODO: calculate the mean and variance for each channel.
         norm_mean = torch.Tensor(torch.load('src/datas/xpt_spe_mean.pth'))
         norm_std = torch.Tensor(torch.load('src/datas/xpt_spe_std.pth'))
         dataloader = get_dataloader(
@@ -56,7 +56,8 @@ def main(args):
             input_dir=args.input_dir,
             batch_size=1,
             transform=transforms.Normalize(norm_mean, norm_std),
-            num_workers=8
+            num_workers=8,
+            test_only=args.test_only,
         )
     elif args.transform == "log":
         dataloader = get_dataloader(
@@ -65,12 +66,16 @@ def main(args):
             input_dir=args.input_dir,
             batch_size=1,
             transform=transforms.LogTransform(),
-            num_workers=8
+            num_workers=8,
+            test_only=args.test_only,
         )
     else:
         raise NotImplementedError
 
-    dataloader = dataloader['val']
+    if args.test_only:
+        dataloader = dataloader['test']
+    else:
+        dataloader = dataloader['val']
 
     model_mse = finetune_evaluate(model=model,
                                   dataloader=dataloader,
@@ -100,5 +105,6 @@ if __name__ == '__main__':
     parser.add_argument('--output_dir')
     parser.add_argument("--transform")
     parser.add_argument('--weights')
+    parser.add_argument('--test-only', action='store_true')
 
     main(parser.parse_args())

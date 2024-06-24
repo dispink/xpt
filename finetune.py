@@ -35,7 +35,6 @@ def main(args):
             pin_memory=args.pin_memory,
         )
     elif args.transform == "normalize":
-        # TODO: calculate the mean and variance for each channel.
         norm_mean = torch.Tensor(torch.load('src/datas/xpt_spe_mean.pth'))
         norm_std = torch.Tensor(torch.load('src/datas/xpt_spe_std.pth'))
         dataloader = get_dataloader(
