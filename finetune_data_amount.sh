@@ -12,7 +12,9 @@ annotation_files=(
     'info.csv'
 )
 
-scale='instance_normalize'
+pretrain_blr="1e-4"
+mask_ratio="0.7"
+scale="instance_normalize"
 
 for target in ${target[*]};
 do
@@ -43,7 +45,7 @@ do
             --output_dir $output_dir \
             --verbose \
             --device cuda \
-            --pretrained_weight results/HPtuning/pretrain-mask-ratio-0.9-blr-1e-4-transform-${scale}/model.ckpt \
+            --pretrained_weight results/HPtuning/pretrain-mask-ratio-${mask_ratio}-blr-${pretrain_blr}-transform-${scale}/model.ckpt \
             --batch_size 256 \
             --epochs $epoch \
             --warmup_epochs $warm_up \
