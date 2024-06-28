@@ -203,15 +203,15 @@ def check_transform(mask_ratio, weights, root: str = os.getcwd(), transform="nor
     plt.tight_layout()
 
     fig.savefig(
-        f"{root}/results/spe_{transform}.png")
+        f"{root}/results/spe_optimal-mask-ratio-{mask_ratio}.png")
 
 
 if __name__ == "__main__":
-    # get root directory
-    mask_ratio = 0.1
+    # mask_ratio = 0.7
     transform = "instance_normalize"
-    check_transform(
-        mask_ratio=mask_ratio,
-        transform=transform,
-        weights=f"results/HPtuning/pretrain-mask-ratio-{mask_ratio}-blr-1e-4-transform-{transform}/model.ckpt")
+    for mask_ratio in range(1, 10):
+        check_transform(
+            mask_ratio=mask_ratio/10,
+            transform=transform,
+            weights=f"results/HPtuning/pretrain-mask-ratio-0.7-blr-1e-4-transform-{transform}/model.ckpt")
     # weights="results/pretrain_test_20240611/model.ckpt")
