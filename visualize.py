@@ -206,12 +206,34 @@ def check_transform(mask_ratio, weights, root: str = os.getcwd(), transform="nor
         f"{root}/results/spe_optimal-mask-ratio-{mask_ratio}.png")
 
 
+def overfitting_in_pretrain():
+    """
+    Using different checkpoints in the pretraining to finetune on the task.
+    Pretrained with: lr 1e-5, instance norm, epoch 100
+    """
+    epochs = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+    mse_val = [0.0388, 0.0209, 0.0158, 0.0136,
+               0.0102, 0.0096, 0.0070, 0.0066, 0.0057, 0.0054]
+    mse_base_val = 0.99951
+    r2_pretrain = 1 - (np.array(mse_val) / mse_base_val)
+    r2_CaCO3 = [0.966, 0.966, 0.968, 0.970,
+                0.971, 0.972, 0.971, 0.971, 0.971, 0.970]
+    r2_TOC = [0.940, 0.909, 0.927, 0.943, 0.942,
+              0.945, 0.947, 0.949, 0.946, 0.946]
+
+    fig, ax = plt.subplots(1, 1, figsize=(7, 5))
+    # plot the line with empty circle markers
+    ax.plot(epochs, r2_pretrain, label="Pre-train",
+            c="C0", marker="o")
+    ax.plot(epochs, r2_CaCO3, label="ft-CaCO3",
+            c="gray", marker="o", markerfacecolor="none")
+    ax.plot(epochs, r2_TOC, label="ft-TOC", c="gray", marker="x")
+    ax.set_xlabel("Epoch")
+    ax.set_ylabel("R$^2$ score")
+    ax.legend()
+    fig.tight_layout()
+    fig.savefig("results/overfitting_in_pretrain.png")
+
+
 if __name__ == "__main__":
-    # mask_ratio = 0.7
-    transform = "instance_normalize"
-    for mask_ratio in range(1, 10):
-        check_transform(
-            mask_ratio=mask_ratio/10,
-            transform=transform,
-            weights=f"results/HPtuning/pretrain-mask-ratio-0.7-blr-1e-4-transform-{transform}/model.ckpt")
-    # weights="results/pretrain_test_20240611/model.ckpt")
+    overfitting_in_pretrain()
