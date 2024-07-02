@@ -72,8 +72,10 @@ def get_tune_args() -> Namespace:
     parser.add_argument("--epochs", default=90, type=int)
     parser.add_argument("--transform", default="instance_normalize")
     parser.add_argument("--target_transform", default="normalize")
-    parser.add_argument("--target_mean", default="src/datas/xpt_CaCO3_target_mean.pth")
-    parser.add_argument("--target_std", default="src/datas/xpt_CaCO3_target_std.pth")
+    parser.add_argument(
+        "--target_mean", default="src/datas/xpt_CaCO3_target_mean.pth")
+    parser.add_argument(
+        "--target_std", default="src/datas/xpt_CaCO3_target_std.pth")
 
     # Optimizer parameters
     parser.add_argument("--optim", default="AdamW")
@@ -111,4 +113,18 @@ def get_eval_args() -> Namespace:
 
     # Inference parameters
     parser.add_argument("--batch_size", type=int)
-    return parser.add_argument()
+    return parser.parse_args()
+
+
+def get_eval_tune_args() -> Namespace:
+    parser = ArgumentParser()
+
+    parser.add_argument("--annotation_file")
+    parser.add_argument("--input_dir")
+    parser.add_argument('--target', default='CaCO3')
+    parser.add_argument('--output_dir')
+    parser.add_argument("--transform")
+    parser.add_argument('--weights')
+    parser.add_argument('--test-only', action='store_true')
+
+    return parser.parse_args()

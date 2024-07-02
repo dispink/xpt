@@ -1,9 +1,7 @@
-from argparse import ArgumentParser
-
 import torch
 from torch import nn
-from torch.utils.data import DataLoader
 
+from src.utils.args import get_eval_tune_args
 from src.eval.eval import finetune_evaluate, finetune_evaluate_base
 from src.models.mae_vit_regressor import mae_vit_base_patch16
 from src.datas import transforms
@@ -98,13 +96,5 @@ def main(args):
 
 
 if __name__ == '__main__':
-    parser = ArgumentParser()
-    parser.add_argument("--annotation_file")
-    parser.add_argument("--input_dir")
-    parser.add_argument('--target', default='CaCO3')
-    parser.add_argument('--output_dir')
-    parser.add_argument("--transform")
-    parser.add_argument('--weights')
-    parser.add_argument('--test-only', action='store_true')
-
-    main(parser.parse_args())
+    args = get_eval_tune_args()
+    main(args)
