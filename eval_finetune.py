@@ -1,3 +1,5 @@
+import os
+
 import torch
 from torch import nn
 
@@ -91,6 +93,7 @@ def main(args):
 
     # Save the results
     if args.output_dir:
+        os.makedirs(args.output_dir, exist_ok=True)
         with open(f'{args.output_dir}/{args.target}.txt', 'w') as f:
             f.write(results)
 
