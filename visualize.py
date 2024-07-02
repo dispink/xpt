@@ -232,7 +232,7 @@ def overfitting_in_pretrain():
     ax.set_ylabel("R$^2$ score")
     ax.legend()
     fig.tight_layout()
-    fig.savefig("results/overfitting_in_pretrain.png")
+    fig.savefig("files/overfitting_in_pretrain.png", dpi=300)
 
 
 def performance_mask_ratio_val():
@@ -267,7 +267,7 @@ def performance_mask_ratio_val():
     ax.set_ylabel("Avg. R$^2$")
     ax.legend(loc="lower right")
     fig.tight_layout()
-    fig.savefig("files/r2_mean_vs_mask_ratio_norm.png")
+    fig.savefig("files/r2_mean_vs_mask_ratio_norm.png", dpi=300)
 
     # 3-2 plot: r2_mean vs mask_ratio
     # This one I only plot the optmial model in each mask_ratio
@@ -283,7 +283,7 @@ def performance_mask_ratio_val():
     ax.set_ylabel("Avg. R$^2$")
     ax.legend(loc="lower right")
     fig.tight_layout()
-    fig.savefig("files/r2_mean_vs_mask_ratio.png")
+    fig.savefig("files/r2_mean_vs_mask_ratio.png", dpi=300)
 
 
 def performance_data_val():
@@ -305,7 +305,7 @@ def performance_data_val():
         ax.plot(data_no, r2_scratch, label="scratch",
                 marker="x", ls="--", alpha=0.7, c="gray")
         ax.scatter(data_no[-1], r2_2022[target], marker="^",
-                   label="Lee at el. (2022)", alpha=0.7, c="black")
+                   label="conventional ML", alpha=0.7, c="black")
 
         ax.set_xlabel("Data amount")
         if target == "CaCO3":
@@ -316,8 +316,10 @@ def performance_data_val():
     axes[1].legend()
     axes[0].set_ylabel("R$^2$")
     fig.tight_layout()
-    fig.savefig("files/r2_vs_data_amount.png")
+    fig.savefig("files/r2_vs_data_amount.png", dpi=300)
 
 
 if __name__ == "__main__":
     performance_data_val()
+    performance_mask_ratio_val()
+    overfitting_in_pretrain()
