@@ -286,5 +286,38 @@ def performance_mask_ratio_val():
     fig.savefig("files/r2_mean_vs_mask_ratio.png")
 
 
+def performance_data_val():
+    """Codes adopted from finetune_data.ipynb"""
+    import pandas as pd
+
+    df = pd.read_csv("files/finetune_data_amount.csv", index_col=0)
+
+    r2_2022 = {"CaCO3": 0.964, "TOC": 0.778}
+
+    fig, axes = plt.subplots(1, 2, sharey="row", figsize=(10, 5))
+
+    for target, ax in zip(["CaCO3", "TOC"], axes):
+        data_no = df.loc[df["target"] == target, "data_no"].values
+        r2_ft = df.loc[df["target"] == target, "r2_ft"].values
+        r2_scratch = df.loc[df["target"] == target, "r2_scratch"].values
+
+        ax.plot(data_no, r2_ft, label="ft", marker="x", alpha=0.7)
+        ax.plot(data_no, r2_scratch, label="scratch",
+                marker="x", ls="--", alpha=0.7, c="gray")
+        ax.scatter(data_no[-1], r2_2022[target], marker="^",
+                   label="Lee at el. (2022)", alpha=0.7, c="black")
+
+        ax.set_xlabel("Data amount")
+        if target == "CaCO3":
+            target = "CaCO$_3$"
+        ax.set_title(target)
+        ax.set_xscale("log")
+
+    axes[1].legend()
+    axes[0].set_ylabel("R$^2$")
+    fig.tight_layout()
+    fig.savefig("files/r2_vs_data_amount.png")
+
+
 if __name__ == "__main__":
-    performance_mask_ratio_val()
+    performance_data_val()
