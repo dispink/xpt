@@ -235,5 +235,56 @@ def overfitting_in_pretrain():
     fig.savefig("results/overfitting_in_pretrain.png")
 
 
+def performance_mask_ratio_val():
+    """Codes adopted from finetune_05.ipynb"""
+    import pandas as pd
+
+    df = pd.read_csv("files/finetune_pretrained.csv", index_col=0)
+    transforms = ["instance_normalize", "normalize", "log"]
+
+    # calculate the mean of r_square
+    r2_mean_df = pd.DataFrame()
+    for i in range(0, len(df), 2):
+        r2_mean = df.loc[i:i+1, "r_square"].mean()
+        tmp_df = df.iloc[i, :3].copy()
+        tmp_df["r2_mean"] = r2_mean
+        r2_mean_df = pd.concat([r2_mean_df, tmp_df], axis=1)
+
+    r2_mean_df = r2_mean_df.T.reset_index(drop=True)
+
+    # 3-1 plot: r2_mean vs mask_ratio in each transform
+    fig, ax = plt.subplots(figsize=(6, 3))
+
+    for t, marker in zip(transforms, ["x", "o", "^"]):
+        mask = r2_mean_df["transform"] == t
+        r2_mean_ratios = r2_mean_df[mask].groupby("mask_ratio").apply(
+            lambda x: x["r2_mean"].max(), include_groups=False).copy()
+        ax.plot(r2_mean_ratios.index, r2_mean_ratios,
+                label=t, marker=marker, alpha=0.7)
+
+    ax.set_ylim(0.93, 0.98)
+    ax.set_xlabel("Mask Ratio")
+    ax.set_ylabel("Avg. R$^2$")
+    ax.legend(loc="lower right")
+    fig.tight_layout()
+    fig.savefig("files/r2_mean_vs_mask_ratio_norm.png")
+
+    # 3-2 plot: r2_mean vs mask_ratio
+    # This one I only plot the optmial model in each mask_ratio
+    fig, ax = plt.subplots(figsize=(6, 3))
+
+    r2_mean_ratios = r2_mean_df.groupby("mask_ratio").apply(
+        lambda x: x["r2_mean"].max(), include_groups=False).copy()
+    ax.plot(r2_mean_ratios.index, r2_mean_ratios,
+            label="Optimal model", marker="x", alpha=0.7)
+
+    ax.set_ylim(0.966, 0.975)
+    ax.set_xlabel("Mask Ratio")
+    ax.set_ylabel("Avg. R$^2$")
+    ax.legend(loc="lower right")
+    fig.tight_layout()
+    fig.savefig("files/r2_mean_vs_mask_ratio.png")
+
+
 if __name__ == "__main__":
-    overfitting_in_pretrain()
+    performance_mask_ratio_val()
