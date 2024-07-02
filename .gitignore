@@ -7,5 +7,7 @@ __pycache__
 data
 output_dir
 results
-models
+/models
 .venv
+data.tar.gz
+HPtuning_pretrained.tar.gz

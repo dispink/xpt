@@ -2,6 +2,7 @@
 
 It's copied from model_mae.py. Except the added head, the kept codes should be identical to it.
 """
+
 from functools import partial
 
 import torch

@@ -9,6 +9,8 @@ transformers
 timm
 tensorboard
 scikit-learn
+tensorboard
+torch-tb-profiler
 
 # For data science
 scipy
@@ -16,3 +18,6 @@ numpy
 pandas
 openpyxl
 matplotlib
+
+# Dependency issues
+protobuf==4.25
