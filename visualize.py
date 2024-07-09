@@ -220,16 +220,14 @@ def overfitting_in_pretrain():
                 0.971, 0.972, 0.971, 0.971, 0.971, 0.970]
     r2_TOC = [0.940, 0.909, 0.927, 0.943, 0.942,
               0.945, 0.947, 0.949, 0.946, 0.946]
+    r2_avg = (np.array(r2_CaCO3) + np.array(r2_TOC)) / 2
 
     fig, ax = plt.subplots(1, 1, figsize=(7, 5))
     # plot the line with empty circle markers
-    ax.plot(epochs, r2_pretrain, label="Pre-train",
-            c="C0", marker="o")
-    ax.plot(epochs, r2_CaCO3, label="ft-CaCO3",
-            c="gray", marker="o", markerfacecolor="none")
-    ax.plot(epochs, r2_TOC, label="ft-TOC", c="gray", marker="x")
+    ax.plot(epochs, r2_pretrain , label="Pre-training", marker="x")
+    ax.plot(epochs, r2_avg, label="Fine-tuning", c="gray", marker="o", markerfacecolor="none")
     ax.set_xlabel("Epoch")
-    ax.set_ylabel("R$^2$ score")
+    ax.set_ylabel("R$^2$")
     ax.legend()
     fig.tight_layout()
     fig.savefig("files/overfitting_in_pretrain.png", dpi=300)
@@ -320,6 +318,4 @@ def performance_data_val():
 
 
 if __name__ == "__main__":
-    performance_data_val()
-    performance_mask_ratio_val()
     overfitting_in_pretrain()
