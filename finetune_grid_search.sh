@@ -27,19 +27,24 @@ do
             output_dir="results/finetune-$target-$annotation_file-epochs-$epoch-blr-$lr/"
             echo "START $target train=$annotation_file, blr=$lr, epochs=$epoch, warm_up=$warm_up"
             python finetune.py \
-                --annotation_file data/finetune/${target}%/train/$annotation_file \
-                --input_dir data/finetune/${target}%/train \
-                --output_dir $output_dir \
-                --verbose \
-                --device cuda \
-                --pretrained_weight pretrain_test_20240611_model.ckpt \
-                --batch_size 256 \
-                --epochs $epoch \
-                --warmup_epochs $warm_up \
-                --blr $lr \
-                --target_mean src/datas/xpt_${target}_target_mean.pth \
-                --target_std src/datas/xpt_${target}_target_std.pth
-            python eval_finetune.py --target $target --weight "$output_dir/model.ckpt"
+            --annotation_file data/finetune/${target}%/train/$annotation_file \
+            --input_dir data/finetune/${target}%/train \
+            --output_dir $output_dir \
+            --verbose \
+            --device cuda \
+            --pretrained_weight pretrain_test_20240611_model.ckpt \
+            --batch_size 256 \
+            --epochs $epoch \
+            --warmup_epochs $warm_up \
+            --blr $lr \
+            --target_mean src/datas/xpt_${target}_target_mean.pth \
+            --target_std src/datas/xpt_${target}_target_std.pth
+            python eval_finetune.py \
+            --annotation_file data/finetune/${target}%/train/info.csv \
+            --input_dir data/finetune/${target}%/train \
+            --transform instance_normalize \
+            --target $target \
+            --weight "$output_dir/model.ckpt"
         done
     done
 done
