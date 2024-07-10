@@ -220,19 +220,101 @@ def overfitting_in_pretrain():
                 0.971, 0.972, 0.971, 0.971, 0.971, 0.970]
     r2_TOC = [0.940, 0.909, 0.927, 0.943, 0.942,
               0.945, 0.947, 0.949, 0.946, 0.946]
+    r2_avg = (np.array(r2_CaCO3) + np.array(r2_TOC)) / 2
 
     fig, ax = plt.subplots(1, 1, figsize=(7, 5))
     # plot the line with empty circle markers
-    ax.plot(epochs, r2_pretrain, label="Pre-train",
-            c="C0", marker="o")
-    ax.plot(epochs, r2_CaCO3, label="ft-CaCO3",
-            c="gray", marker="o", markerfacecolor="none")
-    ax.plot(epochs, r2_TOC, label="ft-TOC", c="gray", marker="x")
+    ax.plot(epochs, r2_pretrain , label="Pre-training", marker="x")
+    ax.plot(epochs, r2_avg, label="Fine-tuning", c="gray", marker="o", markerfacecolor="none")
     ax.set_xlabel("Epoch")
-    ax.set_ylabel("R$^2$ score")
+    ax.set_ylabel("R$^2$")
     ax.legend()
     fig.tight_layout()
-    fig.savefig("results/overfitting_in_pretrain.png")
+    fig.savefig("files/overfitting_in_pretrain.png", dpi=300)
+
+
+def performance_mask_ratio_val():
+    """Codes adopted from finetune_05.ipynb"""
+    import pandas as pd
+
+    df = pd.read_csv("files/finetune_pretrained.csv", index_col=0)
+    transforms = ["instance_normalize", "normalize", "log"]
+
+    # calculate the mean of r_square
+    r2_mean_df = pd.DataFrame()
+    for i in range(0, len(df), 2):
+        r2_mean = df.loc[i:i+1, "r_square"].mean()
+        tmp_df = df.iloc[i, :3].copy()
+        tmp_df["r2_mean"] = r2_mean
+        r2_mean_df = pd.concat([r2_mean_df, tmp_df], axis=1)
+
+    r2_mean_df = r2_mean_df.T.reset_index(drop=True)
+
+    # 3-1 plot: r2_mean vs mask_ratio in each transform
+    fig, ax = plt.subplots(figsize=(6, 3))
+
+    for t, marker in zip(transforms, ["x", "o", "^"]):
+        mask = r2_mean_df["transform"] == t
+        r2_mean_ratios = r2_mean_df[mask].groupby("mask_ratio").apply(
+            lambda x: x["r2_mean"].max(), include_groups=False).copy()
+        ax.plot(r2_mean_ratios.index, r2_mean_ratios,
+                label=t, marker=marker, alpha=0.7)
+
+    ax.set_ylim(0.93, 0.98)
+    ax.set_xlabel("Mask Ratio")
+    ax.set_ylabel("Avg. R$^2$")
+    ax.legend(loc="lower right")
+    fig.tight_layout()
+    fig.savefig("files/r2_mean_vs_mask_ratio_norm.png", dpi=300)
+
+    # 3-2 plot: r2_mean vs mask_ratio
+    # This one I only plot the optmial model in each mask_ratio
+    fig, ax = plt.subplots(figsize=(6, 3))
+
+    r2_mean_ratios = r2_mean_df.groupby("mask_ratio").apply(
+        lambda x: x["r2_mean"].max(), include_groups=False).copy()
+    ax.plot(r2_mean_ratios.index, r2_mean_ratios,
+            label="Optimal model", marker="x", alpha=0.7)
+
+    ax.set_ylim(0.966, 0.975)
+    ax.set_xlabel("Mask Ratio")
+    ax.set_ylabel("Avg. R$^2$")
+    ax.legend(loc="lower right")
+    fig.tight_layout()
+    fig.savefig("files/r2_mean_vs_mask_ratio.png", dpi=300)
+
+
+def performance_data_val():
+    """Codes adopted from finetune_data.ipynb"""
+    import pandas as pd
+
+    df = pd.read_csv("files/finetune_data_amount.csv", index_col=0)
+
+    r2_2022 = {"CaCO3": 0.964, "TOC": 0.778}
+
+    fig, axes = plt.subplots(1, 2, sharey="row", figsize=(10, 5))
+
+    for target, ax in zip(["CaCO3", "TOC"], axes):
+        data_no = df.loc[df["target"] == target, "data_no"].values
+        r2_ft = df.loc[df["target"] == target, "r2_ft"].values
+        r2_scratch = df.loc[df["target"] == target, "r2_scratch"].values
+
+        ax.plot(data_no, r2_ft, label="ft", marker="x", alpha=0.7)
+        ax.plot(data_no, r2_scratch, label="scratch",
+                marker="x", ls="--", alpha=0.7, c="gray")
+        ax.scatter(data_no[-1], r2_2022[target], marker="^",
+                   label="conventional ML", alpha=0.7, c="black")
+
+        ax.set_xlabel("Data amount")
+        if target == "CaCO3":
+            target = "CaCO$_3$"
+        ax.set_title(target)
+        ax.set_xscale("log")
+
+    axes[1].legend()
+    axes[0].set_ylabel("R$^2$")
+    fig.tight_layout()
+    fig.savefig("files/r2_vs_data_amount.png", dpi=300)
 
 
 if __name__ == "__main__":
