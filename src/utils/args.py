@@ -6,6 +6,8 @@ def get_train_args() -> Namespace:
     # General parameters
     parser.add_argument("--annotation_file")
     parser.add_argument("--input_dir")
+    parser.add_argument("--val_annotation_file")
+    parser.add_argument("--val_input_dir")
     parser.add_argument("--output_dir", required=True)
     parser.add_argument("--resume", action="store_true")
     parser.add_argument("--verbose", action="store_true")
@@ -48,6 +50,8 @@ def get_tune_args() -> Namespace:
     # General parameters
     parser.add_argument("--annotation_file")
     parser.add_argument("--input_dir")
+    parser.add_argument("--val_annotation_file")
+    parser.add_argument("--val_input_dir")
     parser.add_argument("--output_dir")
     parser.add_argument("--verbose", action="store_true")
 
