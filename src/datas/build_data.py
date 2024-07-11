@@ -113,7 +113,12 @@ def build_pretrain(out_dir: str, spe_csv: str):
                 "section",
             ]
         ]
-        dfs[dataset].to_csv(f"{out_dir}/{dataset}/info.csv", index=False)
+        if dataset == "train":
+            train_df, val_df = train_test_split(dfs[dataset], test_size=0.2)
+            train_df.to_csv(f"{out_dir}/{dataset}/info.csv", index=False)
+            val_df.to_csv(f"{out_dir}/{dataset}/val.csv", index=False)
+        else:
+            dfs[dataset].to_csv(f"{out_dir}/{dataset}/info.csv", index=False)
 
         print(dfs[dataset].head())
 
