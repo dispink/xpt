@@ -7,45 +7,48 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 
 
-def split_sets(df, pretrain: bool,
-               train_cores=[
-                   "LV29-114-3",
-                   "SO178-12-3",
-                   "SO264-13-2",
-                   "SO264-15-2",
-                   "SO264-28-2",
-                   "SO264-55-1",
-                   "SO264-56-2",
-                   "SO264-64-1",
-                   "SO264-66-2",
-                   "PS97-027-2",
-                   "PS97-046-4",
-                   "PS97-052-4",
-                   "PS97-053-2",
-                   "PS97-078-1",
-                   "PS97-079-2",
-                   "PS97-080-1",
-                   "PS97-083-2",
-                   "PS97-084-1",
-                   "PS97-085-3",
-                   "PS97-089-1",
-                   "PS97-092-1",
-                   "PS97-093-2",
-                   "PS97-128-2",
-                   "PS75-054-1",
-                   "PS75-083-1",
-                   "PS75-093-1",
-                   "PS75-095-5",
-               ],
-               test_cores=["PS75-056-1", "LV28-44-3", "SO264-69-2"]):
+def split_sets(
+    df,
+    pretrain: bool,
+    train_cores=[
+        "LV29-114-3",
+        "SO178-12-3",
+        "SO264-13-2",
+        "SO264-15-2",
+        "SO264-28-2",
+        "SO264-55-1",
+        "SO264-56-2",
+        "SO264-64-1",
+        "SO264-66-2",
+        "PS97-027-2",
+        "PS97-046-4",
+        "PS97-052-4",
+        "PS97-053-2",
+        "PS97-078-1",
+        "PS97-079-2",
+        "PS97-080-1",
+        "PS97-083-2",
+        "PS97-084-1",
+        "PS97-085-3",
+        "PS97-089-1",
+        "PS97-092-1",
+        "PS97-093-2",
+        "PS97-128-2",
+        "PS75-054-1",
+        "PS75-083-1",
+        "PS75-093-1",
+        "PS75-095-5",
+    ],
+    test_cores=["PS75-056-1", "LV28-44-3-n", "SO264-69-2"],
+):
     """
     Separate train+validation and test set cores, and
     return a dictionary with pd.DataFrames named as 'train' and 'test' keys.
 
     df: a pd.DataFrame of spectra or targets compiled
     pretrain: boolean, if True, the function will return the whole dataset except test cores for pretraining.
-    train_cores: a list of train set core names for fine-tuning, default is 
-    the cores used in the ref paper, Lee et al. (2022). 
+    train_cores: a list of train set core names for fine-tuning, default is
+    the cores used in the ref paper, Lee et al. (2022).
     test_cores: a list of test set core names, default is ['PS75-056-1', 'LV28-44-3', 'SO264-69-2'],
                 which are the cores used in the ref paper, Lee et al. (2022).
     """
@@ -141,8 +144,7 @@ def export_rows(df, out_dir, target):
     for i, row in enumerate(df.iterrows()):
         dirname = f"{i}.csv"
         # export spectrum
-        row[1][0:2048].to_csv(
-            f"{out_dir}/spe/{dirname}", index=False, header=False)
+        row[1][0:2048].to_csv(f"{out_dir}/spe/{dirname}", index=False, header=False)
         # export target
         with open(f"{out_dir}/target/{dirname}", "w") as f:
             f.write(str(row[1][target]))
@@ -204,11 +206,10 @@ def build_finetune(out_dir: str, spe_csv: str, targets: list):
 
 if __name__ == "__main__":
     build_pretrain(
-        out_dir="data/_pretrain",
-        spe_csv="data/legacy/spe_dataset_20220629.csv"
+        out_dir="data/_pretrain", spe_csv="data/legacy/spe_dataset_20220629.csv"
     )
     build_finetune(
         out_dir="data/_finetune",
         spe_csv="data/legacy/spe+bulk_dataset_20220629.csv",
-        targets=["CaCO3%", "TOC%"]
+        targets=["CaCO3%", "TOC%"],
     )
