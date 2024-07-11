@@ -26,8 +26,8 @@ def main(args):
         )
     elif args.transform == "normalize":
         # TODO: calculate the mean and variance for each channel.
-        norm_mean = torch.Tensor(torch.load('src/datas/xpt_spe_mean.pth'))
-        norm_std = torch.Tensor(torch.load('src/datas/xpt_spe_std.pth'))
+        norm_mean = torch.Tensor(torch.load("src/datas/xpt_spe_mean.pth"))
+        norm_std = torch.Tensor(torch.load("src/datas/xpt_spe_std.pth"))
         dataloader = get_dataloader(
             ispretrain=True,
             annotations_file=args.annotation_file,
@@ -57,19 +57,16 @@ def main(args):
     elif args.model == "huge":
         model = mae_vit.mae_vit_huge_patch14(mask_ratio=args.mask_ratio)
 
-    optimizer, scheduler = get_optimizer_lr_scheduler(
-        model.parameters(), args)
+    optimizer, scheduler = get_optimizer_lr_scheduler(model.parameters(), args)
 
-    train.trainer(model, dataloader, optimizer, scheduler,
-                  args.epochs, log_writer, args)
+    train.trainer(
+        model, dataloader, optimizer, scheduler, args.epochs, log_writer, args
+    )
 
     model = model.cpu()
-    torch.save(model.state_dict(),
-               os.path.join(args.output_dir, 'model.ckpt'))
-
-    del model
+    torch.save(model.state_dict(), os.path.join(args.output_dir, "model.ckpt"))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     args = get_train_args()
     main(args)
