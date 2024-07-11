@@ -150,7 +150,7 @@ def export_data(df, out_dir, target, do_split=True):
     target: target name
     """
 
-    df = df[~df[target].isna() & df[target] >= 0].copy()
+    df = df[~df[target].isna() & (df[target] >= 0)].copy()
     df["filename"] = export_rows(df, out_dir, target)
     print(f"{len(df)} data are exported.")
 
@@ -164,7 +164,7 @@ def export_data(df, out_dir, target, do_split=True):
         val_df.to_csv(f"{out_dir}/val.csv", index=False)
 
         train_df.to_csv(f"{out_dir}/info.csv", index=False)
-        for size in [10, 50, 100, 500, 1000, 1500]:
+        for size in [10, 50, 100, 500, 1000]:
             sub_df, _ = train_test_split(train_df, train_size=size)
             sub_df.to_csv(f"{out_dir}/info_{size}.csv", index=False)
     else:
@@ -181,7 +181,7 @@ def build_finetune(out_dir: str, spe_csv: str, targets: list):
 
     for target in targets:
         for dataset in dfs.keys():
-            df = replace_zero_and_negative(dfs[dataset], target)
+            df = dfs[dataset]
             print(df[target].describe())
 
             # create subdirectories
