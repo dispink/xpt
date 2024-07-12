@@ -149,7 +149,8 @@ def export_rows(df, out_dir, target):
     for i, row in enumerate(df.iterrows()):
         dirname = f"{i}.csv"
         # export spectrum
-        row[1][0:2048].to_csv(f"{out_dir}/spe/{dirname}", index=False, header=False)
+        row[1][0:2048].to_csv(f"{out_dir}/spe/{dirname}",
+                              index=False, header=False)
         # export target
         with open(f"{out_dir}/target/{dirname}", "w") as f:
             f.write(str(row[1][target]))
@@ -176,7 +177,7 @@ def export_data(df, out_dir, target, do_split=True):
 
     # train validation splits
     if do_split:
-        train_df, val_df = train_test_split(df, test_size=0.2)
+        train_df, val_df = train_test_split(df, test_size=0.2, random_state=24)
 
         val_df.to_csv(f"{out_dir}/val.csv", index=False)
 
