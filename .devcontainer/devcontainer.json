@@ -3,10 +3,10 @@
 {
 	"name": "CUDA 11.8",
 	"image": "mcr.microsoft.com/devcontainers/python:1-3.11-bullseye",
-	"runArgs": [
-		"--gpus=all",
-		"--shm-size=20gb"
-	  ],
+	//"runArgs": [
+		//"--gpus=all",
+		//"--shm-size=20gb"
+	  //],
 
 	// Install cuda related packages
 	"features": {
@@ -17,7 +17,21 @@
 			"installToolkit": true,
 			"cudaVersion": "11.8",
 			"cudnnVersion": "8.6.0.163"
+		},
+		"ghcr.io/devcontainers/features/git:1": {
+			"ppa": true,
+			"version": "latest"
+		},
+		"ghcr.io/devcontainers/features/java:1": {
+			"version": "latest",
+			"jdkDistro": "ms"
 		}
+	
+	},
+
+	"hostRequirements": {
+		"gpu": "optional",
+		"memory": "20gb" 
 	},
 
 	// Install python packages during container creation
