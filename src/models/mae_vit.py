@@ -261,7 +261,7 @@ class MaskedAutoencoderViT(nn.Module):
 
         return x
 
-    def forward_loss(self, spes, pred, mask):
+    def forward_loss(self, spes, pred, mask, mask_only=False):
         """
         spes: [N, spe_size]
         pred: [N, num_patches, patch_size]
@@ -273,14 +273,17 @@ class MaskedAutoencoderViT(nn.Module):
             var = target.var(dim=-1, keepdim=True)
             target = (target - mean) / (var + 1.e-6) ** .5
 
-        loss = (pred - target) ** 2
+        if mask_only:
+            loss = (pred[mask == 1] - target[mask == 1]) ** 2
+        else:
+            loss = (pred - target) ** 2
         loss = loss.mean()  # [1], mean loss on all patches
         return loss
 
-    def forward(self, spes):
+    def forward(self, spes, mask_only=False):
         latent, mask, ids_restore = self.forward_encoder(spes, self.mask_ratio)
         pred = self.forward_decoder(latent, ids_restore)  # [N, L, path_size]
-        loss = self.forward_loss(spes, pred, mask)
+        loss = self.forward_loss(spes, pred, mask, mask_only=mask_only)
         return loss, pred, mask
 
 

@@ -21,7 +21,7 @@ def train_one_epoch(
     for samples in dataloader:
         samples = samples.to(args.device, non_blocking=True, dtype=torch.float)
         with torch.cuda.amp.autocast():
-            loss, _, _ = model(samples)
+            loss, _, _ = model(samples, mask_only=args.loss_mask_only)
             if torch.isnan(loss):
                 raise ValueError('The value of the loss is NaN.')
 
@@ -76,8 +76,10 @@ def trainer(
             )
 
         if "val" in dataloaders:
-            val_loss = evaluate(
-                model=model, dataloader=dataloaders["val"], device=args.device)
+            val_loss = evaluate(model=model,
+                                dataloader=dataloaders["val"],
+                                mask_only=args.loss_mask_only,
+                                device=args.device)
             writer.add_scalar("validation", val_loss, epoch)
             verbose_string += f" | valid loss {val_loss: .3f}"
         else:

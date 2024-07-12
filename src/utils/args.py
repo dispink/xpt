@@ -21,6 +21,7 @@ def get_train_args() -> Namespace:
     parser.add_argument("--model", default="base",
                         choices=["base", "large", "huge"])
     parser.add_argument("--mask_ratio", default=0.8, type=float)
+    parser.add_argument("--loss_mask_only", action="store_true")
 
     # Hyper-parameters
     parser.add_argument("--batch_size", default=32, type=int)
