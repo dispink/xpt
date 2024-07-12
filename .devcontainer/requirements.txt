@@ -18,6 +18,8 @@ numpy
 pandas
 openpyxl
 matplotlib
+JPype1
+tabula-py
 
 # Dependency issues
 protobuf==4.25
