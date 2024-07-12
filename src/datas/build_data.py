@@ -211,10 +211,10 @@ def build_finetune(out_dir: str, spe_csv: str, targets: list):
 
 if __name__ == "__main__":
     build_pretrain(
-        out_dir="data/_pretrain", spe_csv="data/legacy/spe_dataset_20220629.csv"
+        out_dir="data/pretrain", spe_csv="data/legacy/spe_dataset_20220629.csv"
     )
     build_finetune(
-        out_dir="data/_finetune",
+        out_dir="data/finetune",
         spe_csv="data/legacy/spe+bulk_dataset_20220629.csv",
         targets=["CaCO3%", "TOC%"],
     )
