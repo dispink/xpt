@@ -3,6 +3,9 @@ pilot/data
 pilot/output_dir
 pilot/results
 pilot/models
+archives/models
+archives/data/data_20240429.tar.gz
+archives/trained_before_20240711
 __pycache__
 data
 output_dir
