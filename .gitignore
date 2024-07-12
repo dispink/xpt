@@ -12,5 +12,5 @@ output_dir
 results
 /models
 .venv
-data.tar.gz
+data_20240712.tar.gz
 HPtuning_pretrained.tar.gz
