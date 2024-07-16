@@ -3,10 +3,10 @@
 {
 	"name": "CUDA 11.8",
 	"image": "mcr.microsoft.com/devcontainers/python:1-3.11-bullseye",
-	//"runArgs": [
-		//"--gpus=all",
-		//"--shm-size=20gb"
-	  //],
+	"runArgs": [
+		"--gpus=all",
+		"--shm-size=20gb"
+	  ],
 
 	// Install cuda related packages
 	"features": {
@@ -29,11 +29,6 @@
 			"nvmVersion": "latest"
 		}
 	
-	},
-
-	"hostRequirements": {
-		"gpu": "optional",
-		"memory": "20gb" 
 	},
 
 	// Install python packages during container creation
