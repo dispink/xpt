@@ -14,3 +14,4 @@ results
 .venv
 data_20240712.tar.gz
 HPtuning_pretrained.tar.gz
+*.tar.gz

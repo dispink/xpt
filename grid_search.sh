@@ -15,12 +15,14 @@ do
             python3 pretrain.py \
             --annotation_file data/pretrain/train/info.csv \
             --input_dir data/pretrain/train \
+            --val_annotation_file data/pretrain/train/val.csv \
             --output_dir $output_dir \
             --verbose \
             --device cuda \
             --batch_size 256 \
             --epochs 100 \
             --mask_ratio $mask_ratio \
+            --loss_mask_only \
             --blr $lr \
             --transform $scale
         done
