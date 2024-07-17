@@ -127,6 +127,7 @@ def get_eval_tune_args() -> Namespace:
     parser.add_argument("--annotation_file")
     parser.add_argument("--input_dir")
     parser.add_argument('--target', default='CaCO3')
+    parser.add_argument('--target_transform', default='normalize')
     parser.add_argument('--output_dir')
     parser.add_argument("--transform")
     parser.add_argument('--weights')
