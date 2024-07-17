@@ -32,7 +32,12 @@ def main(args):
 
     target_mean = torch.load(f"src/datas/xpt_{args.target}_target_mean.pth")
     target_std = torch.load(f"src/datas/xpt_{args.target}_target_std.pth")
-    reverse_pred = DeNormalize(target_mean, target_std)
+    if args.target_transform == "normalize":
+        reverse_pred = DeNormalize(target_mean, target_std)
+    elif args.target_transform == "instance_normalize":
+        reverse_pred = None
+    else:
+        raise NotImplementedError
 
     model = mae_vit_base_patch16(pretrained=True,
                                  weights=args.weights).to(device)
