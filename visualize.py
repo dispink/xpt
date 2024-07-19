@@ -224,8 +224,9 @@ def overfitting_in_pretrain():
 
     fig, ax = plt.subplots(1, 1, figsize=(7, 5))
     # plot the line with empty circle markers
-    ax.plot(epochs, r2_pretrain , label="Pre-training", marker="x")
-    ax.plot(epochs, r2_avg, label="Fine-tuning", c="gray", marker="o", markerfacecolor="none")
+    ax.plot(epochs, r2_pretrain, label="Pre-training", marker="x")
+    ax.plot(epochs, r2_avg, label="Fine-tuning",
+            c="gray", marker="o", markerfacecolor="none")
     ax.set_xlabel("Epoch")
     ax.set_ylabel("R$^2$")
     ax.legend()
@@ -236,6 +237,11 @@ def overfitting_in_pretrain():
 def performance_mask_ratio_val():
     """Codes adopted from finetune_05.ipynb"""
     import pandas as pd
+    styles = dict(
+        marker=["P", "P", "P"],
+        linestyle=["-", "--", ":"],
+        c=["C0", "gray", "gray"]
+    )
 
     df = pd.read_csv("files/finetune_pretrained.csv", index_col=0)
     transforms = ["instance_normalize", "normalize", "log"]
@@ -253,14 +259,16 @@ def performance_mask_ratio_val():
     # 3-1 plot: r2_mean vs mask_ratio in each transform
     fig, ax = plt.subplots(figsize=(6, 3))
 
-    for t, marker in zip(transforms, ["x", "o", "^"]):
+    for i, t in enumerate(transforms):
         mask = r2_mean_df["transform"] == t
         r2_mean_ratios = r2_mean_df[mask].groupby("mask_ratio").apply(
             lambda x: x["r2_mean"].max(), include_groups=False).copy()
-        ax.plot(r2_mean_ratios.index, r2_mean_ratios,
-                label=t, marker=marker, alpha=0.7)
+        plt.plot(
+            r2_mean_ratios.index, r2_mean_ratios, label=t,
+            marker=styles["marker"][i], linestyle=styles["linestyle"][i],
+            c=styles["c"][i], alpha=0.7)
 
-    ax.set_ylim(0.93, 0.98)
+    # ax.set_ylim(0.93, 0.98)
     ax.set_xlabel("Mask Ratio")
     ax.set_ylabel("Avg. R$^2$")
     ax.legend(loc="lower right")
@@ -276,10 +284,10 @@ def performance_mask_ratio_val():
     ax.plot(r2_mean_ratios.index, r2_mean_ratios,
             label="Optimal model", marker="x", alpha=0.7)
 
-    ax.set_ylim(0.966, 0.975)
+    # ax.set_ylim(0.966, 0.975)
     ax.set_xlabel("Mask Ratio")
     ax.set_ylabel("Avg. R$^2$")
-    ax.legend(loc="lower right")
+    ax.legend(loc="upper right")
     fig.tight_layout()
     fig.savefig("files/r2_mean_vs_mask_ratio.png", dpi=300)
 
@@ -318,4 +326,4 @@ def performance_data_val():
 
 
 if __name__ == "__main__":
-    overfitting_in_pretrain()
+    performance_mask_ratio_val()
