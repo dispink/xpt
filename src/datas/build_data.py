@@ -2,10 +2,7 @@
 """
 
 import os
-
-
 import pandas as pd
-from sklearn.model_selection import train_test_split
 from sklearn.model_selection import train_test_split
 
 
@@ -51,9 +48,6 @@ def split_sets(
     pretrain: boolean, if True, the function will return the whole dataset except test cores for pretraining.
     train_cores: a list of train set core names for fine-tuning, default is
     the cores used in the ref paper, Lee et al. (2022).
-    pretrain: boolean, if True, the function will return the whole dataset except test cores for pretraining.
-    train_cores: a list of train set core names for fine-tuning, default is
-    the cores used in the ref paper, Lee et al. (2022).
     test_cores: a list of test set core names, default is ['PS75-056-1', 'LV28-44-3', 'SO264-69-2'],
                 which are the cores used in the ref paper, Lee et al. (2022).
     """
@@ -65,15 +59,9 @@ def split_sets(
     else:
         data["train"] = df[df.core.isin(train_cores)].copy()
 
-    if pretrain:
-        data["train"] = df[~df.core.isin(test_cores)].copy()
-    else:
-        data["train"] = df[df.core.isin(train_cores)].copy()
-
     return data
 
 
-# Data for pretrain
 # Data for pretrain
 def build_pretrain(out_dir: str, spe_csv: str):
     """Prepare the pretrain data ready for training.
@@ -95,30 +83,25 @@ def build_pretrain(out_dir: str, spe_csv: str):
 
     # split training and test set cores
     dfs = split_sets(spe_df, pretrain=True)
-    dfs = split_sets(spe_df, pretrain=True)
     del spe_df
 
     # output files
     for dataset in ["train", "test"]:
         dirnames = []
-        dirnames = []
         # raw spectra
-        for i, row in enumerate(dfs[dataset].iterrows()):
-            dirname = f"{i}.csv"
         for i, row in enumerate(dfs[dataset].iterrows()):
             dirname = f"{i}.csv"
             row[1][1:2049].to_csv(
                 f"{out_dir}/{dataset}/spe/{dirname}", index=False, header=False
-                f"{out_dir}/{dataset}/spe/{dirname}", index=False, header=False
             )
 
             dirnames.append(dirname)
-            dirnames.append(dirname)
+
         print(f"{len(dfs[dataset])} spectra exorted as {dataset} set.")
 
         # the annotation file
         dfs[dataset]["dirname"] = dirnames
-        dfs[dataset]["dirname"] = dirnames
+
         dfs[dataset] = dfs[dataset][
             [
                 "dirname",
@@ -147,7 +130,6 @@ def replace_zero_and_negative(df, target):
     """
     Replace zero and negative values in targets with 0.001.
     Currently not used in the code.
-    Currently not used in the code.
     """
 
     df[target] = df[target].apply(lambda x: 0.001 if x <= 0 else x)
@@ -159,17 +141,13 @@ def export_rows(df, out_dir, target):
     """
     Export the spectrum and target of each row in df to the "spe" and "target" folders under out_dir.
     In the meantime, return a list of dirnames for later exporting an annotation file.
-    In the meantime, return a list of dirnames for later exporting an annotation file.
 
     df: a pd.DataFrame of spectra and desired target that don't have NaN
     out_dir: str, the directory to save the data.
     target: target name
     """
     dirnames = []
-    dirnames = []
 
-    for i, row in enumerate(df.iterrows()):
-        dirname = f"{i}.csv"
     for i, row in enumerate(df.iterrows()):
         dirname = f"{i}.csv"
         # export spectrum
@@ -177,17 +155,12 @@ def export_rows(df, out_dir, target):
                               index=False, header=False)
         # export target
         with open(f"{out_dir}/target/{dirname}", "w") as f:
-        with open(f"{out_dir}/target/{dirname}", "w") as f:
             f.write(str(row[1][target]))
         # prepare dirname for the annotation file
         dirnames.append(dirname)
     return dirnames
-        # prepare dirname for the annotation file
-        dirnames.append(dirname)
-    return dirnames
 
 
-def export_data(df, out_dir, target, do_split=True):
 def export_data(df, out_dir, target, do_split=True):
     """
     Export the rows (spectrum and target) and the annotation file to the sub_dir.
@@ -197,8 +170,6 @@ def export_data(df, out_dir, target, do_split=True):
     target: target name
     """
 
-    df = df[~df[target].isna() & (df[target] >= 0)].copy()
-    df["dirname"] = export_rows(df, out_dir, target)
     df = df[~df[target].isna() & (df[target] >= 0)].copy()
     df["dirname"] = export_rows(df, out_dir, target)
     print(f"{len(df)} data are exported.")
@@ -226,12 +197,10 @@ def build_finetune(out_dir: str, spe_csv: str, targets: list):
 
     # seperate train+validation and test set cores
     dfs = split_sets(compile_df, pretrain=False)
-    dfs = split_sets(compile_df, pretrain=False)
     del compile_df
 
     for target in targets:
         for dataset in dfs.keys():
-            df = dfs[dataset]
             df = dfs[dataset]
             print(df[target].describe())
 
@@ -240,7 +209,6 @@ def build_finetune(out_dir: str, spe_csv: str, targets: list):
             os.makedirs(f"{sub_dir}/spe", exist_ok=True)
             os.makedirs(f"{sub_dir}/target", exist_ok=True)
 
-            export_data(df, sub_dir, target, do_split=dataset == "train")
             export_data(df, sub_dir, target, do_split=dataset == "train")
 
 
