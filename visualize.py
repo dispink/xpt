@@ -136,7 +136,7 @@ def demo_reconstruction(root: str = os.getcwd()):
     plt.savefig(f"{root}/results/pred_without_mask.png", transparent=True)
 
 
-def check_transform(mask_ratio, weights, root: str = os.getcwd(), transform="normalize"):
+def check_transform(mask_ratio, weights, size, transform="normalize"):
     import torch
     from src.datas import datasets, transforms, dataloader
     from src.models import mae_vit
@@ -154,8 +154,8 @@ def check_transform(mask_ratio, weights, root: str = os.getcwd(), transform="nor
 
     # load dataset
     dataset = datasets.PretrainDataset(
-        annotations_file=f"{root}/data/pretrain/train/info.csv",
-        input_dir=f"{root}/data/pretrain/train",
+        annotations_file="data/pretrain/train/info.csv",
+        input_dir="data/pretrain/train",
         transform=transform
     )
 
@@ -168,42 +168,47 @@ def check_transform(mask_ratio, weights, root: str = os.getcwd(), transform="nor
     )
 
     model.eval()
-    with torch.no_grad():
-        spe = data_val[22].unsqueeze(0).to(
-            "cuda", non_blocking=True, dtype=torch.float)
-        loss, pred, mask = model(spe)
-        pred_un_arr, mask_un_arr = unpatchify_PredandMask(mask, pred, model)
 
-    spe_arr = spe.squeeze(0).cpu().numpy()
+    fig, axes = plt.subplots(size, 1, sharex="col", figsize=(
+        7, 12), tight_layout=True, dpi=300)
+    for ax, index in zip(axes, np.random.randint(0, 350, size)):
+        with torch.no_grad():
+            spe = data_val[index].unsqueeze(0).to(
+                "cuda", non_blocking=True, dtype=torch.float)
+            _, pred, mask = model(spe, mask_only=True)
+            pred_un_arr, mask_un_arr = unpatchify_PredandMask(
+                mask, pred, model)
 
-    # create figures with transparent background
-    channel = np.arange(1, spe.shape[1] + 1)
-    ylim = (-4, spe_arr.max() + 1)
-    # 1 masked, 0 unmasked
-    mask_un = (mask_un_arr == 1)
+        spe_arr = spe.squeeze(0).cpu().numpy()
 
-    # plot the masked spectrum
-    fig = plt.figure(figsize=(7, 5))
-    plt.plot(channel, spe_arr, alpha=0.5, label="target", c="C0")
-    plt.ylim(ylim)
-    plt.vlines(
-        channel[mask_un],
-        ymin=ylim[0],
-        ymax=np.repeat(ylim[1], mask_un.sum()),
-        color="gray",
-        label="masked",
-        alpha=0.1
-    )
-    plt.plot(channel, pred_un_arr, alpha=0.5,
-             label=f"pred (mse={loss:.2f})", c="C1")
+        # create figures with transparent background
+        channel = np.arange(1, spe.shape[1] + 1)
+        kev = channel * 0.02  # 20 eV/channel
+        ylim = (-4, spe_arr.max() + 1)
+        # 1 masked, 0 unmasked
+        mask_un = (mask_un_arr == 1)
 
-    plt.xlabel("Channel")
-    plt.ylabel("Standardized intensity")
-    plt.legend()
-    plt.tight_layout()
+        # plot the masked spectrum
 
+        ax.plot(kev, spe_arr, alpha=0.5, label="original spectrum", c="C0")
+        ax.set_ylim(ylim)
+        ax.vlines(
+            kev[mask_un],
+            ymin=ylim[0],
+            ymax=np.repeat(ylim[1], mask_un.sum()),
+            color="gray",
+            label="masked part",
+            alpha=0.1
+        )
+        ax.scatter(kev[mask_un], pred_un_arr[mask_un], alpha=0.6,
+                   label="prediction", c="black", s=1.5)
+
+        ax.set_ylabel("Standardized intensity")
+
+    axes[0].legend()
+    ax.set_xlabel("KeV")
     fig.savefig(
-        f"{root}/results/spe_optimal-mask-ratio-{mask_ratio}.png")
+        f"files/compiled_spectra.png")
 
 
 def overfitting_in_pretrain():
@@ -326,4 +331,8 @@ def performance_data_val():
 
 
 if __name__ == "__main__":
-    performance_mask_ratio_val()
+    check_transform(
+        0.5,
+        "results/HPtuning-loss-on-masks/pretrain-mask-ratio-0.5-blr-1e-4-transform-instance_normalize/model.ckpt",
+        size=3,
+        transform="instance_normalize")
