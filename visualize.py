@@ -238,7 +238,7 @@ def performance_mask_ratio_val():
     """Codes adopted from finetune_05.ipynb"""
     import pandas as pd
     styles = dict(
-        marker=["P", "P", "P"],
+        marker=["x", "x", "x"],
         linestyle=["-", "--", ":"],
         c=["C0", "gray", "gray"]
     )
