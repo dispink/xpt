@@ -320,7 +320,7 @@ def detailed_performance_mask_ratio_val():
                 label=t, marker=styles["marker"][i], linestyle=styles["linestyle"][i],
                 c=styles["c"][i], alpha=0.9)
 
-    ylabels = ["Avg. R$^2$", "R$^2$ (CaCO$_3$)", "R$^2$ (TOC)"]
+    ylabels = ["Avg. R$^2$", "R$^2$ (TOC)", "R$^2$ (CaCO$_3$)"]
     indices = ["a", "b", "c"]
     ylims = [(0.9001, 0.929), (0.49, 1.04), (0.49, 1.04)]
     legend_locs = ["upper right", "lower right", "lower right"]
@@ -369,4 +369,4 @@ def performance_data_val():
 
 
 if __name__ == "__main__":
-    performance_data_val()
+    detailed_performance_mask_ratio_val()
