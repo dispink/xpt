@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import os
 import numpy as np
+import pandas as pd
 
 
 def demo_patch(root: str = os.getcwd()):
@@ -248,18 +249,9 @@ def performance_mask_ratio_val():
         c=["C0", "gray", "gray"]
     )
 
-    df = pd.read_csv("files/finetune_pretrained.csv", index_col=0)
+    r2_mean_df = pd.read_csv(
+        "files/finetune_pretrained_r2_mean.csv", index_col=0)
     transforms = ["instance_normalize", "normalize", "log"]
-
-    # calculate the mean of r_square
-    r2_mean_df = pd.DataFrame()
-    for i in range(0, len(df), 2):
-        r2_mean = df.loc[i:i+1, "r_square"].mean()
-        tmp_df = df.iloc[i, :3].copy()
-        tmp_df["r2_mean"] = r2_mean
-        r2_mean_df = pd.concat([r2_mean_df, tmp_df], axis=1)
-
-    r2_mean_df = r2_mean_df.T.reset_index(drop=True)
 
     # 3-1 plot: r2_mean vs mask_ratio in each transform
     fig, ax = plt.subplots(figsize=(6, 3))
@@ -297,6 +289,52 @@ def performance_mask_ratio_val():
     fig.savefig("files/r2_mean_vs_mask_ratio.png", dpi=300)
 
 
+def detailed_performance_mask_ratio_val():
+    fig, axes = plt.subplots(3, 1, sharex="col", figsize=(
+        5, 7.5), tight_layout=True, dpi=300)
+
+    # 3-3 plot
+    r2_mean_df = pd.read_csv(
+        "files/finetune_pretrained_r2_mean.csv", index_col=0)
+    r2_mean_ratios = r2_mean_df.groupby("mask_ratio").apply(
+        lambda x: x["r2_mean"].max(), include_groups=False).copy()
+    axes[0].plot(r2_mean_ratios.index, r2_mean_ratios,
+                 label="optimal model", marker="x", alpha=0.7)
+
+    # 1-1 plots
+    df = pd.read_csv("files/finetune_pretrained.csv", index_col=0)
+
+    styles = dict(
+        marker=["x", "x", "x"],
+        linestyle=["-", "--", ":"],
+        c=["C0", "gray", "gray"]
+    )
+
+    for ax, target in zip(axes[1:], ["TOC", "CaCO3"]):
+        for i, t in enumerate(df["transform"].unique()):
+            mask = (df["transform"] == t) & (df["target"] == target)
+            best_r2_df = df[mask].groupby("mask_ratio").apply(
+                lambda x: x.loc[x["r_square"].idxmax()], include_groups=False).copy()
+            ax.plot(
+                best_r2_df.index, best_r2_df["r_square"],
+                label=t, marker=styles["marker"][i], linestyle=styles["linestyle"][i],
+                c=styles["c"][i], alpha=0.9)
+
+    ylabels = ["Avg. R$^2$", "R$^2$ (CaCO$_3$)", "R$^2$ (TOC)"]
+    indices = ["a", "b", "c"]
+    ylims = [(0.9001, 0.929), (0.49, 1), (0.79, 1)]
+    legend_locs = ["upper right", "lower right", "lower right"]
+
+    for i, ax in enumerate(axes):
+        ax.text(0.01, 0.92,
+                indices[i], transform=ax.transAxes, fontsize=12, weight='bold')
+        ax.set_ylabel(ylabels[i])
+        ax.set_ylim(ylims[i])
+        ax.legend(loc=legend_locs[i])
+
+    fig.savefig("files/r2_vs_mask_ratio_detailed.png")
+
+
 def performance_data_val():
     """Codes adopted from finetune_data.ipynb"""
     import pandas as pd
@@ -331,8 +369,4 @@ def performance_data_val():
 
 
 if __name__ == "__main__":
-    check_transform(
-        0.5,
-        "results/HPtuning-loss-on-masks/pretrain-mask-ratio-0.5-blr-1e-4-transform-instance_normalize/model.ckpt",
-        size=3,
-        transform="instance_normalize")
+    detailed_performance_mask_ratio_val()
