@@ -322,7 +322,7 @@ def detailed_performance_mask_ratio_val():
 
     ylabels = ["Avg. R$^2$", "R$^2$ (CaCO$_3$)", "R$^2$ (TOC)"]
     indices = ["a", "b", "c"]
-    ylims = [(0.9001, 0.929), (0.49, 1), (0.79, 1)]
+    ylims = [(0.9001, 0.929), (0.49, 1.04), (0.49, 1.04)]
     legend_locs = ["upper right", "lower right", "lower right"]
 
     for i, ax in enumerate(axes):
