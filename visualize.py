@@ -350,11 +350,11 @@ def performance_data_val():
         r2_ft = df.loc[df["target"] == target, "r2_ft"].values
         r2_scratch = df.loc[df["target"] == target, "r2_scratch"].values
 
-        ax.plot(data_no, r2_ft, label="ft", marker="x", alpha=0.7)
-        ax.plot(data_no, r2_scratch, label="scratch",
+        ax.plot(data_no, r2_ft, label="MAX", marker="x", alpha=0.7)
+        ax.plot(data_no, r2_scratch, label="ViT-base",
                 marker="x", ls="--", alpha=0.7, c="gray")
         ax.scatter(data_no[-1], r2_2022[target], marker="^",
-                   label="conventional ML", alpha=0.7, c="black")
+                   label="baseline", alpha=0.7, c="black")
 
         ax.set_xlabel("Data amount")
         if target == "CaCO3":
@@ -369,4 +369,4 @@ def performance_data_val():
 
 
 if __name__ == "__main__":
-    detailed_performance_mask_ratio_val()
+    performance_data_val()
