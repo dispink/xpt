@@ -2,10 +2,10 @@
 
 # Evaluate the optimal finetuned model on the test set
 
-target=CaCO3
+target=TOC
 input_dir=data/finetune/${target}%/test
 pretrain_blr="1e-4"
-mask_ratio="0.7"
+mask_ratio="0.5"
 scale=instance_normalize
 weights_dir=results/finetune_pretrained/pretrain-mask-ratio-${mask_ratio}-blr-${pretrain_blr}-transform-${scale}/${target}/model.ckpt
 #weights_dir=results/checkpoint_from_scratch/${target}_from_scratch.ckpt
@@ -20,9 +20,5 @@ python eval_finetune.py \
 
 # Results:
 # Optimal models
-# CaCO3 MSE: 17.116,     MSE of base model: 79.463,      R2: 0.785
-# TOC   MSE: 0.045,     MSE of base model: 0.195,       R2: 0.772
-
-# Train-from-scratch models
-# CaCO3  MSE: 5.310,     MSE of base model: 79.463,      R2: 0.933
-# TOC   MSE: 0.069,     MSE of base model: 0.195,       R2: 0.648
+# CaCO3 MSE: 11.413,    MSE of base model: 455.999,     R2: 0.975
+# TOC   MSE: 0.095,     MSE of base model: 0.097,       R2: 0.018
