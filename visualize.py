@@ -367,6 +367,26 @@ def performance_data_val():
     fig.tight_layout()
     fig.savefig("files/r2_vs_data_amount.png", dpi=300)
 
+def performance_data_case():
+    df = pd.read_csv("files/finetune_data_amount_case.csv", index_col=0)
+    fig, ax = plt.subplots(figsize=(6, 3))
+
+    ax.plot(
+        df.loc[df["target"] == "CaCO3", "data_no"], df.loc[df["target"] == "CaCO3", "r2_ft"], 
+        label="CaCO$_3$", marker="x", alpha=0.7
+        )
+    ax.plot(
+        df.loc[df["target"] == "TOC", "data_no"], df.loc[df["target"] == "TOC", "r2_ft"], 
+        label="TOC", marker="x", ls="--", c="gray", alpha=0.7
+        )
+
+    ax.set_xlabel("Data amount")
+
+    ax.legend()
+    ax.set_ylabel("R$^2$")
+    plt.tight_layout()
+    fig.savefig("files/r2_vs_data_amount_case.png", dpi=300)
+        
 
 if __name__ == "__main__":
-    detailed_performance_mask_ratio_val()
+    performance_data_case()
