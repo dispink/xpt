@@ -367,18 +367,21 @@ def performance_data_val():
     fig.tight_layout()
     fig.savefig("files/r2_vs_data_amount.png", dpi=300)
 
+
 def performance_data_case():
     df = pd.read_csv("files/finetune_data_amount_case.csv", index_col=0)
     fig, ax = plt.subplots(figsize=(6, 3))
 
     ax.plot(
-        df.loc[df["target"] == "CaCO3", "data_no"], df.loc[df["target"] == "CaCO3", "r2_ft"], 
+        df.loc[df["target"] == "CaCO3",
+               "data_no"], df.loc[df["target"] == "CaCO3", "r2_ft"],
         label="CaCO$_3$", marker="x", alpha=0.7
-        )
+    )
     ax.plot(
-        df.loc[df["target"] == "TOC", "data_no"], df.loc[df["target"] == "TOC", "r2_ft"], 
+        df.loc[df["target"] == "TOC",
+               "data_no"], df.loc[df["target"] == "TOC", "r2_ft"],
         label="TOC", marker="x", ls="--", c="gray", alpha=0.7
-        )
+    )
 
     ax.set_xlabel("Data amount")
 
@@ -386,7 +389,59 @@ def performance_data_case():
     ax.set_ylabel("R$^2$")
     plt.tight_layout()
     fig.savefig("files/r2_vs_data_amount_case.png", dpi=300)
-        
 
+
+def plot_ev_peaks(min: int, max: int, target, elements: list = False, legend: bool = True):
+    from src.utils.saliency_map import filter_emission_peaks
+    from src.utils.saliency_map import generate_saliency_map
+
+    sa_array = generate_saliency_map(target)
+    ev_compile_df = pd.read_csv("files/emission_peaks.csv", index_col=0)
+    df = filter_emission_peaks(ev_compile_df, min, max)
+
+    if elements:
+        df = df[df["element"].isin(elements)].copy()
+    start = int(min*50)
+    end = int(max*50)
+    ymax = 0.65
+
+    fig = plt.figure(figsize=(7, 5), tight_layout=True, dpi=300)
+
+    # draw soectrum
+    plt.plot((np.linspace(1, 2048, 2048) * 0.02)
+             [start:end], sa_array[start:end], c="gray")
+
+    # draw ev peaks
+    for i, row in enumerate(df.iterrows()):
+        row = row[1][row[1] != ""].values
+        plt.vlines(row[1:]*0.001, ymin=0, ymax=ymax,
+                   label=row[0], colors=f"C{i}", alpha=0.5)
+
+    plt.ylim(0, ymax)
+
+    if legend:
+        plt.legend()
+    plt.xlabel("Energy (KeV)")
+    plt.ylabel("Saliency")
+    return fig
+
+
+def customize_plot_ev_peaks(min: int, max: int, target, elements: list = False):
+    fig = plot_ev_peaks(min, max, target, elements, legend=False)
+    i = 0
+    if target == "CaCO3":
+        plt.vlines([7.38, 8.02], ymin=0, ymax=0.65,
+                   label="Ca*2", colors="C3", alpha=0.5)
+        for x, txt in zip([0.82, 2.2, 4.1, 6.7], ["Mg", "P", "Ca", "Ca*2"]):
+            plt.text(x, 0.62, txt, fontsize=12, c=f"C{i}")
+            i += 1
+    elif target == "TOC":
+        for x, txt in zip([1.2, 1.76, 3.2, 5.6], elements):
+            plt.text(x, 0.62, txt, fontsize=12, c=f"C{i}")
+            i += 1
+
+    fig.savefig(f"results/saliency_map_{target}.png")
+
+    # return fig
 if __name__ == "__main__":
-    performance_data_case()
+    customize_plot_ev_peaks(0.8, 6, "TOC", ["Br", "Zr", "Rh", "Ba"])
