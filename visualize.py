@@ -1,7 +1,17 @@
-import matplotlib.pyplot as plt
 import os
 import numpy as np
 import pandas as pd
+
+import matplotlib.pyplot as plt
+plt.style.use("seaborn-v0_8-colorblind")
+plt.rcParams["savefig.dpi"] = 300
+plt.rcParams["axes.labelsize"] = 9
+plt.rcParams["xtick.labelsize"] = 7
+plt.rcParams["ytick.labelsize"] = 7
+plt.rcParams["legend.fontsize"] = 7
+plt.rcParams["lines.linewidth"] = 0.6
+plt.rcParams["lines.markersize"] = 1.5
+plt.rcParams["figure.autolayout"] = True
 
 
 def demo_patch(root: str = os.getcwd()):
@@ -392,6 +402,7 @@ def performance_data_case():
 
 
 def plot_ev_peaks(min: int, max: int, target, elements: list = False, legend: bool = True):
+    "Modified from finetune_saliency_map_02.ipynb"
     from src.utils.saliency_map import filter_emission_peaks
     from src.utils.saliency_map import generate_saliency_map
 
@@ -442,6 +453,80 @@ def customize_plot_ev_peaks(min: int, max: int, target, elements: list = False):
 
     fig.savefig(f"results/saliency_map_{target}.png")
 
-    # return fig
+
+def combined_saliency_map():
+    from src.utils.saliency_map import filter_emission_peaks, generate_saliency_map
+
+    sa_dict = {
+        "CaCO3": generate_saliency_map("CaCO3"),
+        "TOC": generate_saliency_map("TOC")
+    }
+
+    elements_dict = {
+        "CaCO3": ["Mg", "P", "Ca"],
+        "TOC": ["Br", "Zr", "Rh", "Ba"]
+    }
+
+    min = 1
+    max = 8.2
+    ev_compile_df = pd.read_csv("files/emission_peaks.csv", index_col=0)
+    df = filter_emission_peaks(ev_compile_df, min, max)
+    start = int(min*50)
+    end = int(max*50)
+    ymin = -0.02
+    ymax = 0.65
+    kev = np.linspace(1, 2048, 2048) * 0.02
+    figsize = (6, 3.7)
+
+    fig, axes = plt.subplots(2, 2, figsize=figsize, sharey="row", sharex="col")
+    for ax_row, target in enumerate(["CaCO3", "TOC"]):
+        sa_array = sa_dict[target]
+        elements = elements_dict[target]
+
+        label_y = 0.52
+        i = 0
+        if target == "CaCO3":
+            axes[0, 1].vlines([7.38, 8.02], ymin=0,
+                              ymax=0.65, colors="C3", alpha=0.5)
+            for label_x, txt in zip([0.75, 2.2, 4.1, 6.5], ["Mg", "P", "Ca", "Ca*2"]):
+                axes[0, 1].text(label_x, label_y, txt, fontsize=6, c=f"C{i}")
+                i += 1
+
+        elif target == "TOC":
+            for label_x, txt in zip([1, 1.64, 3.2, 5.6], elements):
+                axes[1, 1].text(label_x, label_y, txt, fontsize=6, c=f"C{i}")
+                i += 1
+
+        # draw the whole saliency map
+        axes[ax_row, 0].plot(kev, sa_array, c="gray", label="whole map")
+
+        # draw zoom-in saliency map
+        axes[ax_row, 1].plot(
+            kev[start:end], sa_array[start:end], c="gray", label="zoom-in map")
+
+        df_tmp = df[df["element"].isin(elements)].copy()
+
+        # draw ev peaks
+        for i, row in enumerate(df_tmp.iterrows()):
+            row = row[1][row[1] != ""].values
+            axes[ax_row, 1].vlines(row[1:]*0.001, ymin=ymin, ymax=ymax,
+                                   label=row[0], colors=f"C{i}", alpha=0.5)
+
+        axes[ax_row, 1].set_ylim(ymin, ymax)
+
+    # set axis labels
+    axes[1, 0].set_xlabel("Energy (KeV) - whole")
+    axes[1, 1].set_xlabel("Energy (KeV) - zoom-in")
+    axes[0, 0].set_ylabel("Saliency - CaCO$_3$")
+    axes[1, 0].set_ylabel("Saliency - TOC")
+
+    # set axe indices
+    for ax, index in zip(axes.ravel(), ["a", "b", "c", "d"]):
+        ax.text(0.01, 0.92,
+                index, transform=ax.transAxes, fontsize=9, weight='bold')
+
+    fig.savefig("files/combined_saliency_map.png")
+
+
 if __name__ == "__main__":
-    customize_plot_ev_peaks(0.8, 6, "TOC", ["Br", "Zr", "Rh", "Ba"])
+    combined_saliency_map()
