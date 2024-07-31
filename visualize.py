@@ -525,9 +525,49 @@ def combined_saliency_map():
     fig.savefig("files/combined_saliency_map.png")
 
 
+def plot_datasets():
+    fig, axes = plt.subplots(
+        2, 3, sharex='row', sharey='row', figsize=(7, 6.6))
+
+    info_dict = {}
+    for i, target in enumerate(["CaCO3%", "TOC%"]):
+        info_dict["test"] = pd.read_csv(
+            f"data/finetune/{target}/test/info.csv")
+        info_dict["train"] = pd.read_csv(
+            f"data/finetune/{target}/train/info.csv")
+        info_dict["val"] = pd.read_csv(
+            f"data/finetune/{target}/train/val.csv")
+
+        for j, subset in enumerate(["train", "val", "test"]):
+            y = []
+            if subset == "test":
+                for csv in info_dict[subset].dirname:
+                    measurement = np.loadtxt(
+                        f"data/finetune/{target}/test/target/{csv}", delimiter=",", dtype=float)
+                    y.append(measurement)
+            else:
+                # train and val read the spe from the same directory but based on the different info.csv
+                for csv in info_dict[subset].dirname:
+                    measurement = np.loadtxt(
+                        f"data/finetune/{target}/train/target/{csv}", delimiter=",", dtype=float)
+                    y.append(measurement)
+            y = np.array(y)
+
+            axes[i, j].hist(y, bins=25, alpha=0.5)
+            axes[i, j].text(0.62, 0.76, "max={:.1f}\nmin={:.2f}\nmean:{:.2f}\nstd={:.2f}\nN={}".format(
+                y.max(), y.min(), y.mean(), y.std(), len(y)), transform=axes[i, j].transAxes, size=8
+            )
+
+    # The test set is named as case study after discussion
+    for j, subset in enumerate(["Train", "Validation", "Case study"]):
+        axes[0, j].set_title(subset, size=9)
+
+    axes[0, 0].set_ylabel("Count for CaCO$_3$")
+    axes[1, 0].set_ylabel("Count for TOC")
+    axes[1, 1].set_xlabel("Concentration (wt%)")
+
+    fig.savefig("files/data_hist.png")
+
+
 if __name__ == "__main__":
-    detailed_performance_mask_ratio_val()
-    check_transform()
-    performance_data_val()
-    combined_saliency_map()
-    performance_data_case()
+    plot_datasets()
