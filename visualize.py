@@ -5,12 +5,12 @@ import pandas as pd
 import matplotlib.pyplot as plt
 plt.style.use("seaborn-v0_8-colorblind")
 plt.rcParams["savefig.dpi"] = 300
-plt.rcParams["axes.labelsize"] = 9
+plt.rcParams["axes.labelsize"] = 8
 plt.rcParams["xtick.labelsize"] = 7
 plt.rcParams["ytick.labelsize"] = 7
 plt.rcParams["legend.fontsize"] = 7
 plt.rcParams["lines.linewidth"] = 0.6
-plt.rcParams["lines.markersize"] = 1.5
+plt.rcParams["lines.markersize"] = 2
 plt.rcParams["figure.autolayout"] = True
 
 
@@ -146,21 +146,15 @@ def demo_reconstruction(root: str = os.getcwd()):
     plt.savefig(f"{root}/results/pred_without_mask.png", transparent=True)
 
 
-def check_transform(mask_ratio, weights, size, transform="normalize"):
+def check_transform():
     import torch
     from src.datas import datasets, transforms, dataloader
     from src.models import mae_vit
 
-    if transform == "instance_normalize":
-        transform = transforms.InstanceNorm()
-
-    elif transform == "normalize":
-        norm_mean = torch.Tensor(torch.load('src/datas/xpt_spe_mean.pth'))
-        norm_std = torch.Tensor(torch.load('src/datas/xpt_spe_std.pth'))
-        transform = transforms.Normalize(norm_mean, norm_std)
-
-    elif transform == "log":
-        transform = transforms.LogTransform()
+    mask_ratio = 0.5
+    weights = f"results/HPtuning-loss-on-masks/pretrain-mask-ratio-0.5-blr-1e-4-transform-instance_normalize/model.ckpt"
+    size = 5  # number of spectra to plot, should be odd numbers
+    transform = transforms.InstanceNorm()
 
     # load dataset
     dataset = datasets.PretrainDataset(
@@ -179,8 +173,7 @@ def check_transform(mask_ratio, weights, size, transform="normalize"):
 
     model.eval()
 
-    fig, axes = plt.subplots(size, 1, sharex="col", figsize=(
-        7, 12), tight_layout=True, dpi=300)
+    fig, axes = plt.subplots(size, 1, sharex="col", figsize=(3.54, 8))
     for ax, index in zip(axes, np.random.randint(0, 350, size)):
         with torch.no_grad():
             spe = data_val[index].unsqueeze(0).to(
@@ -198,25 +191,29 @@ def check_transform(mask_ratio, weights, size, transform="normalize"):
         # 1 masked, 0 unmasked
         mask_un = (mask_un_arr == 1)
 
-        # plot the masked spectrum
-
-        ax.plot(kev, spe_arr, alpha=0.5, label="original spectrum", c="C0")
+        # plot the original spectrum
+        ax.plot(kev, spe_arr, alpha=0.9, label="original spectrum",
+                c="C0", linewidth=0.2*size, zorder=5)
         ax.set_ylim(ylim)
+
+        # plot the masked part
         ax.vlines(
             kev[mask_un],
             ymin=ylim[0],
             ymax=np.repeat(ylim[1], mask_un.sum()),
-            color="gray",
+            color="#D3D3D3",
             label="masked part",
-            alpha=0.1
+            zorder=0
+            # alpha=0.1
         )
+
+        # plot the reconstructed spectrum
         ax.scatter(kev[mask_un], pred_un_arr[mask_un], alpha=0.6,
-                   label="prediction", c="black", s=1.5)
+                   label="reconstruction", c="black", s=1/size, zorder=10)
 
-        ax.set_ylabel("Standardized intensity")
-
+    axes[int((size-1)/2)].set_ylabel("Normalized intensity")
     axes[0].legend()
-    ax.set_xlabel("KeV")
+    ax.set_xlabel("Energy (KeV)")
     fig.savefig(
         f"files/compiled_spectra.png")
 
@@ -299,8 +296,7 @@ def performance_mask_ratio_val():
 
 
 def detailed_performance_mask_ratio_val():
-    fig, axes = plt.subplots(3, 1, sharex="col", figsize=(
-        5, 7.5), tight_layout=True, dpi=300)
+    fig, axes = plt.subplots(3, 1, sharex="col", figsize=(3.54, 5.6))
 
     # 3-3 plot
     r2_mean_df = pd.read_csv(
@@ -331,15 +327,17 @@ def detailed_performance_mask_ratio_val():
 
     ylabels = ["Avg. R$^2$", "R$^2$ (TOC)", "R$^2$ (CaCO$_3$)"]
     indices = ["a", "b", "c"]
-    ylims = [(0.9001, 0.929), (0.49, 1.04), (0.49, 1.04)]
+    ylims = [(0.897, 0.9352), (0.49, 1.04), (0.49, 1.04)]
     legend_locs = ["upper right", "lower right", "lower right"]
 
     for i, ax in enumerate(axes):
         ax.text(0.01, 0.92,
-                indices[i], transform=ax.transAxes, fontsize=12, weight='bold')
+                indices[i], transform=ax.transAxes, fontsize=9, weight='bold')
         ax.set_ylabel(ylabels[i])
         ax.set_ylim(ylims[i])
         ax.legend(loc=legend_locs[i])
+
+    ax.set_xlabel("Mask Ratio")
 
     fig.savefig("files/r2_vs_mask_ratio_detailed.png")
 
@@ -352,9 +350,9 @@ def performance_data_val():
 
     r2_2022 = {"CaCO3": 0.964, "TOC": 0.778}
 
-    fig, axes = plt.subplots(1, 2, sharey="row", figsize=(10, 5))
+    fig, axes = plt.subplots(1, 2, sharey="row", figsize=(3.54, 2.5))
 
-    for target, ax in zip(["CaCO3", "TOC"], axes):
+    for target, ax, index in zip(["CaCO3", "TOC"], axes, ["a", "b"]):
         data_no = df.loc[df["target"] == target, "data_no"].values
         r2_ft = df.loc[df["target"] == target, "r2_ft"].values
         r2_scratch = df.loc[df["target"] == target, "r2_scratch"].values
@@ -365,21 +363,21 @@ def performance_data_val():
         ax.scatter(data_no[-1], r2_2022[target], marker="^",
                    label="baseline", alpha=0.7, c="black")
 
+        ax.text(0.01, 0.92,
+                index, transform=ax.transAxes, fontsize=9, weight='bold')
         ax.set_xlabel("Data amount")
-        if target == "CaCO3":
-            target = "CaCO$_3$"
-        ax.set_title(target)
+
         ax.set_xscale("log")
 
-    axes[1].legend()
+    axes[0].legend()
     axes[0].set_ylabel("R$^2$")
     fig.tight_layout()
-    fig.savefig("files/r2_vs_data_amount.png", dpi=300)
+    fig.savefig("files/r2_vs_data_amount.png")
 
 
 def performance_data_case():
     df = pd.read_csv("files/finetune_data_amount_case.csv", index_col=0)
-    fig, ax = plt.subplots(figsize=(6, 3))
+    fig, ax = plt.subplots(figsize=(3.54, 2.1))
 
     ax.plot(
         df.loc[df["target"] == "CaCO3",
@@ -415,7 +413,7 @@ def plot_ev_peaks(min: int, max: int, target, elements: list = False, legend: bo
     end = int(max*50)
     ymax = 0.65
 
-    fig = plt.figure(figsize=(7, 5), tight_layout=True, dpi=300)
+    fig = plt.figure(figsize=(7, 5))
 
     # draw soectrum
     plt.plot((np.linspace(1, 2048, 2048) * 0.02)
@@ -475,7 +473,7 @@ def combined_saliency_map():
     ymin = -0.02
     ymax = 0.65
     kev = np.linspace(1, 2048, 2048) * 0.02
-    figsize = (6, 3.7)
+    figsize = (7, 3.7)
 
     fig, axes = plt.subplots(2, 2, figsize=figsize, sharey="row", sharex="col")
     for ax_row, target in enumerate(["CaCO3", "TOC"]):
@@ -528,4 +526,8 @@ def combined_saliency_map():
 
 
 if __name__ == "__main__":
-    demo_patch()
+    detailed_performance_mask_ratio_val()
+    check_transform()
+    performance_data_val()
+    combined_saliency_map()
+    performance_data_case()
