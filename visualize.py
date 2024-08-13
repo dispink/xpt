@@ -485,12 +485,12 @@ def combined_saliency_map():
         if target == "CaCO3":
             axes[0, 1].vlines([7.38, 8.02], ymin=0,
                               ymax=0.65, colors="C3", alpha=0.5)
-            for label_x, txt in zip([0.75, 2.2, 4.1, 6.5], ["Mg", "P", "Ca", "Ca*2"]):
+            for label_x, txt in zip([0.85, 2.2, 4.1, 6.75], ["Mg", "P", "Ca", "Ca*2"]):
                 axes[0, 1].text(label_x, label_y, txt, fontsize=6, c=f"C{i}")
                 i += 1
 
         elif target == "TOC":
-            for label_x, txt in zip([1, 1.64, 3.2, 5.6], elements):
+            for label_x, txt in zip([1.15, 1.75, 3.2, 5.6], elements):
                 axes[1, 1].text(label_x, label_y, txt, fontsize=6, c=f"C{i}")
                 i += 1
 
@@ -570,4 +570,4 @@ def plot_datasets():
 
 
 if __name__ == "__main__":
-    plot_datasets()
+    combined_saliency_map()
