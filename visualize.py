@@ -153,7 +153,8 @@ def check_transform():
 
     mask_ratio = 0.5
     weights = f"results/HPtuning-loss-on-masks/pretrain-mask-ratio-0.5-blr-1e-4-transform-instance_normalize/model.ckpt"
-    size = 5  # number of spectra to plot, should be odd numbers
+    # size = 5  # number of spectra to plot, should be odd numbers
+    size = [2, 2]
     transform = transforms.InstanceNorm()
 
     # load dataset
@@ -173,8 +174,9 @@ def check_transform():
 
     model.eval()
 
-    fig, axes = plt.subplots(size, 1, sharex="col", figsize=(3.54, 8))
-    for ax, index in zip(axes, np.random.randint(0, 350, size)):
+    fig, axes = plt.subplots(
+        size[0], size[1], sharex="col", sharey="all", figsize=(7.25, 4))
+    for ax, index in zip(axes.ravel(), np.random.randint(0, 350, size[0]*size[1])):
         with torch.no_grad():
             spe = data_val[index].unsqueeze(0).to(
                 "cuda", non_blocking=True, dtype=torch.float)
@@ -187,13 +189,14 @@ def check_transform():
         # create figures with transparent background
         channel = np.arange(1, spe.shape[1] + 1)
         kev = channel * 0.02  # 20 eV/channel
-        ylim = (-4, spe_arr.max() + 1)
+        # ylim = (-4, spe_arr.max() + 1)
+        ylim = (-0.8, 14.6)
         # 1 masked, 0 unmasked
         mask_un = (mask_un_arr == 1)
 
         # plot the original spectrum
         ax.plot(kev, spe_arr, alpha=0.9, label="original spectrum",
-                c="C0", linewidth=0.2*size, zorder=5)
+                c="C0", linewidth=0.4*size[0], zorder=5)
         ax.set_ylim(ylim)
 
         # plot the masked part
@@ -209,11 +212,14 @@ def check_transform():
 
         # plot the reconstructed spectrum
         ax.scatter(kev[mask_un], pred_un_arr[mask_un], alpha=0.6,
-                   label="reconstruction", c="black", s=1/size, zorder=10)
+                   label="reconstruction", c="black", s=1/(size[0]*size[1]), zorder=10)
 
-    axes[int((size-1)/2)].set_ylabel("Normalized intensity")
-    axes[0].legend()
-    ax.set_xlabel("Energy (KeV)")
+    for i in range(size[0]):
+        axes[i, 0].set_ylabel("Normalized intensity")
+        axes[1, i].set_xlabel("Energy (KeV)")
+
+    axes[1, 1].legend()
+
     fig.savefig(
         f"files/compiled_spectra.png")
 
@@ -570,4 +576,4 @@ def plot_datasets():
 
 
 if __name__ == "__main__":
-    combined_saliency_map()
+    check_transform()
