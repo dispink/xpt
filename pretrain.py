@@ -1,6 +1,8 @@
 import os
+import random
 
 import torch
+import numpy as np
 
 from src.train import train
 from src.datas import transforms
@@ -12,6 +14,10 @@ from src.utils.optim import get_optimizer_lr_scheduler
 
 
 def main(args):
+    random.seed(42)
+    np.random.seed(42)
+    torch.manual_seed(42)
+
     log_writer = get_log_writer(args)
 
     if args.transform == "instance_normalize":
@@ -19,6 +25,8 @@ def main(args):
             ispretrain=True,
             annotations_file=args.annotation_file,
             input_dir=args.input_dir,
+            val_annotations_file=args.val_annotation_file,
+            val_input_dir=args.val_input_dir,
             batch_size=args.batch_size,
             transform=transforms.InstanceNorm(),
             num_workers=args.num_workers,
@@ -32,6 +40,8 @@ def main(args):
             ispretrain=True,
             annotations_file=args.annotation_file,
             input_dir=args.input_dir,
+            val_annotations_file=args.val_annotation_file,
+            val_input_dir=args.val_input_dir,
             batch_size=args.batch_size,
             transform=transforms.Normalize(norm_mean, norm_std),
             num_workers=args.num_workers,
@@ -42,6 +52,8 @@ def main(args):
             ispretrain=True,
             annotations_file=args.annotation_file,
             input_dir=args.input_dir,
+            val_annotations_file=args.val_annotation_file,
+            val_input_dir=args.val_input_dir,
             batch_size=args.batch_size,
             transform=transforms.LogTransform(),
             num_workers=args.num_workers,

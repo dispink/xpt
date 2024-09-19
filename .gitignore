@@ -3,11 +3,15 @@ pilot/data
 pilot/output_dir
 pilot/results
 pilot/models
+archives/models
+archives/data/data_20240429.tar.gz
+archives/trained_before_20240711
 __pycache__
 data
 output_dir
 results
 /models
 .venv
-data.tar.gz
+data_20240712.tar.gz
 HPtuning_pretrained.tar.gz
+*.tar.gz

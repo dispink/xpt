@@ -23,11 +23,13 @@ do
                 echo "START $target mask-ratio=$mask_ratio, blr=$lr, transform=$scale" 
                 python3 finetune.py \
                     --annotation_file data/finetune/${target}%/train/info.csv \
+                    --val_annotation_file data/finetune/${target}%/train/val.csv \
                     --input_dir data/finetune/${target}%/train \
+                    --val_input_dir data/finetune/${target}%/train \
                     --output_dir $output_dir \
                     --verbose \
                     --device cuda \
-                    --pretrained_weight results/HPtuning/pretrain-mask-ratio-$mask_ratio-blr-$lr-transform-$scale/model.ckpt \
+                    --pretrained_weight results/HPtuning-loss-on-masks/pretrain-mask-ratio-$mask_ratio-blr-$lr-transform-$scale/model.ckpt \
                     --batch_size 256 \
                     --epochs $epoch \
                     --warmup_epochs $warm_up \
@@ -38,11 +40,12 @@ do
                 
                 python3 eval_finetune.py \
                     --target $target \
-                    --annotation_file data/finetune/${target}%/train/info.csv \
+                    --annotation_file data/finetune/${target}%/train/val.csv \
                     --input_dir data/finetune/${target}%/train \
                     --output_dir $output_dir \
                     --transform $scale \
-                    --weight "$output_dir/model.ckpt" 
+                    --weight "$output_dir/model.ckpt" \
+                    --test-only
             done
         done
     done

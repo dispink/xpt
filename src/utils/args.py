@@ -6,6 +6,8 @@ def get_train_args() -> Namespace:
     # General parameters
     parser.add_argument("--annotation_file")
     parser.add_argument("--input_dir")
+    parser.add_argument("--val_annotation_file")
+    parser.add_argument("--val_input_dir")
     parser.add_argument("--output_dir", required=True)
     parser.add_argument("--resume", action="store_true")
     parser.add_argument("--verbose", action="store_true")
@@ -19,6 +21,7 @@ def get_train_args() -> Namespace:
     parser.add_argument("--model", default="base",
                         choices=["base", "large", "huge"])
     parser.add_argument("--mask_ratio", default=0.8, type=float)
+    parser.add_argument("--loss_mask_only", action="store_true")
 
     # Hyper-parameters
     parser.add_argument("--batch_size", default=32, type=int)
@@ -48,6 +51,8 @@ def get_tune_args() -> Namespace:
     # General parameters
     parser.add_argument("--annotation_file")
     parser.add_argument("--input_dir")
+    parser.add_argument("--val_annotation_file")
+    parser.add_argument("--val_input_dir")
     parser.add_argument("--output_dir")
     parser.add_argument("--verbose", action="store_true")
 
@@ -122,6 +127,7 @@ def get_eval_tune_args() -> Namespace:
     parser.add_argument("--annotation_file")
     parser.add_argument("--input_dir")
     parser.add_argument('--target', default='CaCO3')
+    parser.add_argument('--target_transform', default='normalize')
     parser.add_argument('--output_dir')
     parser.add_argument("--transform")
     parser.add_argument('--weights')

@@ -6,41 +6,31 @@ annotation_files=(
     'info_10.csv'
     'info_50.csv'
     'info_100.csv'
-    'info_500.csv'
-    'info_1000.csv'
-    'info.csv'
+    'info_150.csv'
+    'info_200.csv'
+    'info_250.csv'
+    'info_train.csv'
 )
 
 pretrain_blr="1e-4"
 mask_ratio="0.5"
 scale="instance_normalize"
+
+epoch=100
+warm_up=10
+lr=1e-4
+
 pretrained_weight="results/HPtuning-loss-on-masks/pretrain-mask-ratio-${mask_ratio}-blr-${pretrain_blr}-transform-${scale}/model.ckpt"
 
 for target in ${target[*]};
 do
-    input_dir=data/finetune/${target}%/train
-
-    if [ "$target" == "CaCO3" ]; then
-    epochs=(100 150 150 200 200 150)
-    warm_ups=(10 15 15 20 20 15)
-    lrs=(1e-4 1e-4 1e-4 1e-5 1e-5 1e-5)
-
-    elif [ "$target" == "TOC" ]; then
-        epochs=(50 50 50 75 100 100)
-        warm_ups=(5 5 5 8 10 10)
-        lrs=(1e-4 1e-5 1e-4 1e-4 1e-4 1e-4)
-    fi
-
+    input_dir=data/finetune/${target}%/test
     for (( i=0; i<${#annotation_files[*]}; ++i));
     do
-        epoch=${epochs[$i]}
-        warm_up=${warm_ups[$i]}
-        annotation_file=${annotation_files[$i]}
-        lr=${lrs[$i]}
-        output_dir=results/finetune_data_amount/${target}-${annotation_file}-epochs-${epoch}-blr-${lr}/
+        output_dir=results/finetune_data_amount_case/${target}-${annotation_files[i]}-epochs-${epoch}-blr-${lr}/
         echo "START $target train=$annotation_file, blr=$lr, epochs=$epoch, warm_up=$warm_up"
         python finetune.py \
-            --annotation_file ${input_dir}/${annotation_file} \
+            --annotation_file ${input_dir}/${annotation_files[i]} \
             --val_annotation_file ${input_dir}/val.csv \
             --input_dir $input_dir \
             --val_input_dir $input_dir\

@@ -20,6 +20,8 @@ def get_dataloader(
     annotations_file: str,
     input_dir: str,
     batch_size: int,
+    val_annotations_file: str | None = None,
+    val_input_dir: str | None = None,
     transform=lambda x: x,
     target_transform=lambda x: x,
     num_workers=1,
@@ -32,20 +34,20 @@ def get_dataloader(
     """
 
     # decide which dataset to use
-    if ispretrain:
-        dataset = PretrainDataset(
-            annotations_file, input_dir,
-            transform=transform,
-        )
-    else:
-        dataset = FinetuneDataset(
-            annotations_file, input_dir,
-            transform=transform,
-            target_transform=target_transform,
-        )
 
     # split the dataset into train and val sets
     if test_only:
+        if ispretrain:
+            dataset = PretrainDataset(
+                annotations_file, input_dir,
+                transform=transform,
+            )
+        else:
+            dataset = FinetuneDataset(
+                annotations_file, input_dir,
+                transform=transform,
+                target_transform=target_transform,
+            )
         dataloader = {
             "test": DataLoader(
                 dataset,
@@ -56,7 +58,43 @@ def get_dataloader(
             ),
         }
     else:
-        data_train, data_val = split(dataset)
+        if val_annotations_file is None:
+            if ispretrain:
+                dataset = PretrainDataset(
+                    annotations_file, input_dir,
+                    transform=transform,
+                )
+            else:
+                dataset = FinetuneDataset(
+                    annotations_file, input_dir,
+                    transform=transform,
+                    target_transform=target_transform,
+                )
+            data_train, data_val = split(dataset)
+        else:
+            if val_input_dir is None:
+                val_input_dir = input_dir
+            
+            if ispretrain:
+                data_train = PretrainDataset(
+                    annotations_file, input_dir,
+                    transform=transform,
+                )
+                data_val = PretrainDataset(
+                    val_annotations_file, val_input_dir,
+                    transform=transform,
+                )
+            else:
+                data_train = FinetuneDataset(
+                    annotations_file, input_dir,
+                    transform=transform,
+                    target_transform=target_transform,
+                )
+                data_val = FinetuneDataset(
+                    val_annotations_file, val_input_dir,
+                    transform=transform,
+                    target_transform=target_transform,
+                )
 
         # create dataloaders
         dataloader = {
