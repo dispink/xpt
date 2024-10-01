@@ -158,13 +158,11 @@ def check_transform():
     transform = transforms.InstanceNorm()
 
     # load dataset
-    dataset = datasets.PretrainDataset(
-        annotations_file="data/pretrain/train/info.csv",
+    data_val = datasets.PretrainDataset(
+        annotations_file="data/pretrain/train/val.csv",
         input_dir="data/pretrain/train",
         transform=transform
     )
-
-    _, data_val = dataloader.split(dataset)
 
     # load model
     model = mae_vit.mae_vit_base_patch16(mask_ratio=mask_ratio).to("cuda")
