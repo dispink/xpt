@@ -29,13 +29,16 @@ def evaluate_base(dataloader):
     Calculate the MSE of the base model, 
     i.e., the model predicts only the mean of the target values.
     """
-    data = torch.empty((0, 2048))
+    data_train = torch.empty((0, 2048))
+    data_val = torch.empty((0, 2048))
 
     with torch.no_grad():
-        for samples in dataloader:
-            data = torch.cat((data, samples), 0)
-        mean = data.mean()
-        mse = get_mse(mean, data)
+        for samples_train, samples_val in zip(dataloader["train"], dataloader["val"]):
+            data_train = torch.cat((data_train, samples_train), 0)
+            data_val = torch.cat((data_val, samples_val), 0)
+
+        mean = data_train.mean()
+        mse = get_mse(mean, data_val)
 
     return mse
 
