@@ -1,7 +1,7 @@
 # Restructure the project: Command line logic and folder structure
 
 ## Useful links
-1. [Discussion with Yu-Wen](https://docs.google.com/document/d/1IsWvWiVTuQ_j5wFc76Ls7NYi29niM4V6dsDlzO3wVyg/edit?usp=sharing)
+1. [Discussion with Yu-Wen]
 1. [Exapmle](https://github.com/OPTML-Group/Unlearn-Sparse)
 1. [Brief gothrough of folder structure and argparse](https://towardsdatascience.com/organizing-machine-learning-projects-e4f86f9fdd9c#:~:text=File%20structure,README.md%20file%20as%20well!)
 1. [3-ways Generic Folder Structure for ML](https://dev.to/luxacademy/generic-folder-structure-for-your-machine-learning-projects-4coe)
