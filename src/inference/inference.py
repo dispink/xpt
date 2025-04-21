@@ -21,3 +21,19 @@ def inference(model: nn.Module, dataloader: DataLoader, device="cuda"):
 
     # Return the raw predictions list
     return predictions
+
+
+class DeNormalize(nn.Module):
+    def __init__(self, mean, std):
+        super().__init__()
+        self.mean = mean
+        self.std = std
+
+    def forward(self, x):
+        self.mean = self.mean.to(x.device)
+        self.std = self.std.to(x.device)
+        output = self.std * x + self.mean
+
+        # Clamps numbers into the range [0, 100] as the wt% values
+        output = torch.clamp(output, min=0, max=100)
+        return output
