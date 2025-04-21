@@ -52,7 +52,7 @@ def get_dataloader(
             "test": DataLoader(
                 dataset,
                 batch_size=batch_size,
-                shuffle=True,
+                shuffle=False,
                 num_workers=num_workers,
                 pin_memory=pin_memory,
             ),
@@ -74,7 +74,7 @@ def get_dataloader(
         else:
             if val_input_dir is None:
                 val_input_dir = input_dir
-            
+
             if ispretrain:
                 data_train = PretrainDataset(
                     annotations_file, input_dir,
@@ -106,7 +106,10 @@ def get_dataloader(
                 pin_memory=pin_memory,
             ),
             "val": DataLoader(
-                data_val, batch_size=batch_size, num_workers=num_workers, pin_memory=pin_memory
+                data_val,
+                batch_size=batch_size,
+                num_workers=num_workers,
+                pin_memory=pin_memory
             ),
         }
 
