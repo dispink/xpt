@@ -145,7 +145,7 @@ def mae_vit_base_patch16_dec512d8b(pretrained: bool, weights=None, **kwargs):
 
     if pretrained:
         # adopt pretrained model's weights to the new model
-        pretrained_state = torch.load(weights)
+        pretrained_state = torch.load(weights, weights_only=True)
         model_state = model.state_dict()
         compiled_state = model_state.copy()
 
