@@ -573,5 +573,70 @@ def plot_datasets():
     fig.savefig("files/data_hist.png")
 
 
+def demo_case_study():
+    """Codes adopted from baseline_comparison.ipynb.
+    Draw an example core from the case study to demo 
+    the predictions from both baseline and MAX.
+    """
+
+    measurement = 'CaCO3'
+    core = 'PS75-056-1'
+
+    # read data
+    measurement_df = pd.read_csv(
+        'data/legacy/spe+bulk_dataset_20220629.csv', index_col=0)
+    baseline_df = pd.read_csv(
+        'data/legacy/predict_20220629.csv', index_col=0)
+    max_df = pd.read_csv(f'results/zeroshot_case.csv', index_col=0)
+
+    # compile data
+    measurement_df['composite_depth_mm'] = (
+        measurement_df['mid_depth_mm']-5).astype(int)
+    measurement_df["CaCO3_me"] = measurement_df["CaCO3%"]
+    measurement_df["TOC_me"] = measurement_df["TOC%"]
+    measurement_df = measurement_df[[
+        "core", "composite_depth_mm", "CaCO3_me", "TOC_me"]].copy()
+
+    baseline_df["CaCO3_bs"] = baseline_df["CaCO3 prediction (wt%)"]
+    baseline_df["TOC_bs"] = baseline_df["TOC prediction (wt%)"]
+    baseline_df = baseline_df[[
+        "core", "composite_depth_mm", "CaCO3_bs", "TOC_bs"]].copy()
+
+    max_df["CaCO3_max"] = max_df["CaCO3 prediction (wt%)"]
+    max_df["TOC_max"] = max_df["TOC prediction (wt%)"]
+    max_df = max_df[["core", "composite_depth_mm",
+                     "CaCO3_max", "TOC_max"]].copy()
+
+    me = measurement_df[measurement_df.core == core]
+    bs = baseline_df[baseline_df.core == core]
+    max = max_df[max_df.core == core]
+
+    # plot
+    fig, ax = plt.subplots(1, 1, figsize=(7, 2.2))
+    ax.scatter(
+        me['composite_depth_mm']*.001,
+        me['{}_me'.format(measurement)],
+        label='Measurement', s=4)
+
+    ax.plot(
+        bs['composite_depth_mm']*.001,
+        bs['{}_bs'.format(measurement)],
+        linewidth=.7, alpha=.8,
+        c='C2', label='Prediction (baseline)')
+
+    ax.plot(
+        max['composite_depth_mm']*.001,
+        max['{}_max'.format(measurement)],
+        linewidth=.7, alpha=.8,
+        c='C1', label='Prediction (MAX)')
+
+    ax.set_ylabel('CaCO$_3$ (wt%)')
+
+    ax.legend(loc=(0, 1.05), ncol=3)
+    ax.set_xlabel('Core depth (m)')
+    fig.tight_layout()
+    fig.savefig('files/predictions_case_{}.png'.format(core))
+
+
 if __name__ == "__main__":
-    check_transform()
+    demo_case_study()
