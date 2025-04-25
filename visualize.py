@@ -193,7 +193,7 @@ def check_transform():
         mask_un = (mask_un_arr == 1)
 
         # plot the original spectrum
-        ax.plot(kev, spe_arr, alpha=0.9, label="original spectrum",
+        ax.plot(kev, spe_arr, alpha=0.9, label="Original spectrum",
                 c="C0", linewidth=0.4*size[0], zorder=5)
         ax.set_ylim(ylim)
 
@@ -203,14 +203,14 @@ def check_transform():
             ymin=ylim[0],
             ymax=np.repeat(ylim[1], mask_un.sum()),
             color="#D3D3D3",
-            label="masked part",
+            label="Masked part",
             zorder=0
             # alpha=0.1
         )
 
         # plot the reconstructed spectrum
         ax.scatter(kev[mask_un], pred_un_arr[mask_un], alpha=0.6,
-                   label="reconstruction", c="black", s=1/(size[0]*size[1]), zorder=10)
+                   label="Reconstruction", c="black", s=1/(size[0]*size[1]), zorder=10)
 
     for i in range(size[0]):
         axes[i, 0].set_ylabel("Normalized intensity")
@@ -308,7 +308,7 @@ def detailed_performance_mask_ratio_val():
     r2_mean_ratios = r2_mean_df.groupby("mask_ratio").apply(
         lambda x: x["r2_mean"].max(), include_groups=False).copy()
     axes[0].plot(r2_mean_ratios.index, r2_mean_ratios,
-                 label="optimal model", marker="x", alpha=0.7)
+                 label="Optimal model", marker="x", alpha=0.7)
 
     # 1-1 plots
     df = pd.read_csv("files/finetune_pretrained.csv", index_col=0)
@@ -319,14 +319,17 @@ def detailed_performance_mask_ratio_val():
         c=["C0", "gray", "gray"]
     )
 
+    transforms = ["instance_normalize", "normalize", "log"]
+    legend_t = ["InstanceNorm", "ChannelNorm", "Logarithm"]
     for ax, target in zip(axes[1:], ["TOC", "CaCO3"]):
-        for i, t in enumerate(df["transform"].unique()):
+        for i, t in enumerate(transforms):
             mask = (df["transform"] == t) & (df["target"] == target)
             best_r2_df = df[mask].groupby("mask_ratio").apply(
                 lambda x: x.loc[x["r_square"].idxmax()], include_groups=False).copy()
+
             ax.plot(
                 best_r2_df.index, best_r2_df["r_square"],
-                label=t, marker=styles["marker"][i], linestyle=styles["linestyle"][i],
+                label=legend_t[i], marker=styles["marker"][i], linestyle=styles["linestyle"][i],
                 c=styles["c"][i], alpha=0.9)
 
     ylabels = ["Avg. R$^2$", "R$^2$ (TOC)", "R$^2$ (CaCO$_3$)"]
@@ -365,7 +368,7 @@ def performance_data_val():
         ax.plot(data_no, r2_scratch, label="ViT-base",
                 marker="x", ls="--", alpha=0.7, c="gray")
         ax.scatter(data_no[-1], r2_2022[target], marker="^",
-                   label="baseline", alpha=0.7, c="black")
+                   label="Baseline", alpha=0.7, c="black")
 
         ax.text(0.01, 0.92,
                 index, transform=ax.transAxes, fontsize=9, weight='bold')
@@ -622,17 +625,17 @@ def demo_case_study():
         bs['composite_depth_mm']*.001,
         bs['{}_bs'.format(measurement)],
         linewidth=.7, alpha=.8,
-        c='C2', label='Prediction (baseline)')
+        c='C2', label='Quantification (baseline)')
 
     ax.plot(
         max['composite_depth_mm']*.001,
         max['{}_max'.format(measurement)],
         linewidth=.7, alpha=.8,
-        c='C1', label='Prediction (MAX)')
+        c='C1', label='Quantification (MAX)')
 
     ax.set_ylabel('CaCO$_3$ (wt%)')
 
-    ax.legend(loc=(0, 1.05), ncol=3)
+    ax.legend(loc=(0.293, 1.05), ncol=3)
     ax.set_xlabel('Core depth (m)')
     fig.tight_layout()
     fig.savefig('files/predictions_case_{}.png'.format(core))
