@@ -641,5 +641,34 @@ def demo_case_study():
     fig.savefig('files/predictions_case_{}.png'.format(core))
 
 
+def draw_evlines(element="Br"):
+    maxev = 18
+    ev_compile_df = pd.read_csv("files/emission_peaks.csv", index_col=0)
+
+    lines = ev_compile_df[ev_compile_df["element"] == element].dropna(axis=1)
+    labels = lines.columns[2:]
+    lines = lines.iloc[0, 2:].values
+
+    # draw spectrum
+    spe = np.loadtxt(
+        f"data/pretrain/train/spe/10.csv", delimiter=",", dtype=float)
+
+    fig, ax = plt.subplots(1, 1, figsize=(5, 3))
+    ax.plot(np.linspace(1, 2048, 2048) * 0.02, spe /
+            spe.max()+0.008, c="gray", label="XRF spectrum")
+
+    for i, line in enumerate(lines):
+        if line < maxev*1000:
+            ax.vlines(line*0.001, ymin=0, ymax=1, alpha=0.5)
+            ax.text(line*0.001+0.1, np.random.uniform(0.3, 0.9),
+                    labels[i], fontsize=8)
+    ax.set_ylim(0, 1)
+    ax.set_xlim(0, maxev)
+    ax.set_xlabel("Energy (KeV)")
+    ax.set_ylabel("Normalized intensity")
+    ax.legend()
+    fig.savefig(f"results/evlines_{element}.png", dpi=300)
+
+
 if __name__ == "__main__":
-    demo_case_study()
+    draw_evlines("Ca")
